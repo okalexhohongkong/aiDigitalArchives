@@ -814,6 +814,64 @@ h2 {
   font-size: 12px;
 }
 
+.intake-batch-panel {
+  margin-top: 14px;
+  padding: 14px;
+  background: #fbfcf9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.intake-batch-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.intake-batch-head strong {
+  font-size: 14px;
+}
+
+.intake-batch-head em {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.intake-batch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.intake-batch-grid span {
+  display: grid;
+  gap: 5px;
+  min-height: 88px;
+  padding: 10px;
+  color: var(--muted);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.intake-batch-grid b {
+  color: var(--ink);
+  font-size: 12px;
+}
+
 .intake-flow {
   display: grid;
   gap: 14px;
@@ -1288,7 +1346,8 @@ h2 {
   }
 
   .intake-source-grid,
-  .intake-selected-grid {
+  .intake-selected-grid,
+  .intake-batch-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1333,6 +1392,7 @@ h2 {
 
   .intake-source-grid,
   .intake-selected-grid,
+  .intake-batch-grid,
   .intake-workflow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

@@ -967,6 +967,20 @@
         <span><b>归集位置</b>${escapeHtml(source.target)}</span>
         <span><b>状态/风险</b>${escapeHtml(source.status)} · ${escapeHtml(source.risk)}</span>
       </div>
+      <div class="intake-batch-panel">
+        <div class="intake-batch-head">
+          <strong>真实接入批次控制</strong>
+          <em>建议批次：${escapeHtml(source.batchPrefix || "SRC")}-${new Date().getFullYear()}-001</em>
+        </div>
+        <div class="intake-batch-grid">
+          <span><b>扫描范围</b>${escapeHtml(source.scanScope || "待确认")}</span>
+          <span><b>默认密级</b>${escapeHtml(source.securityDefault || "待人工确认")}</span>
+          <span><b>扫描前确认</b>${escapeHtml(source.precheck || "确认来源、负责人和授权范围")}</span>
+          <span><b>扫描报告</b>${escapeHtml(source.report || "输出数量、体积、格式、风险和失败条目")}</span>
+          <span><b>NAS 入口</b>${escapeHtml(source.nasGate || "授权后进入 NAS 暂存区")}</span>
+          <span><b>AI 候选边界</b>${escapeHtml(source.aiGate || "高密级默认不进 AI")}</span>
+        </div>
+      </div>
     `;
     refreshIcons();
   }
