@@ -368,9 +368,9 @@
     <main class="page">
       <header class="hero">
         <div>
-          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-06-24 15:43 <span class="progress-badge ahead">100.0%</span></p>
+          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-06-24 23:42 <span class="progress-badge ahead">100.0%</span></p>
           <h1 class="title-line">黑卫士 AI 数字档案管理系统实施进度 <span class="progress-badge ahead">100.0%</span></h1>
-          <p>当前演示/单机/桌面封装阶段已闭环：只读扫描、本地索引、浏览器脱敏索引、按档案编号申请打开所在位置、本机索引快搜、一键演示、服务健康检查、桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口、桌面项目文件入口、分类字段、L0-L6 密级和作品等级规则已验收；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。</p>
+          <p>当前演示/单机/桌面封装/远程仓库阶段已闭环：只读扫描、本地索引、浏览器脱敏索引、按档案编号申请打开所在位置、本机索引快搜、一键演示、服务健康检查、桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口、桌面项目文件入口、远程仓库上传、分类字段、L0-L6 密级和作品等级规则已验收；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。当前推进项是真实数据接入准备。</p>
           <div class="legend">
             <span><span class="progress-badge normal small">88.0%</span> 蓝色跳动：正常推进示例</span>
             <span><span class="progress-badge ahead small">100.0%</span> 绿色：超前或提前完成</span>
@@ -379,7 +379,7 @@
         </div>
         <aside class="status-box">
           <strong>单机闭环完成 <span class="progress-badge ahead">100.0%</span></strong>
-          <span>演示版、单机可用版和桌面可打开封装已通过扫描、验收、自检、健康检查和备份；真实 40T-60T 全量接入仍等待指定目录或硬盘。</span>
+          <span>演示版、单机可用版、桌面可打开封装和远程仓库上传已通过；真实 40T-60T 全量接入仍等待指定目录或硬盘。</span>
         </aside>
       </header>
 
@@ -439,6 +439,14 @@
               <div class="bar done col-5-6">已完成</div>
             </div>
             <div class="task">
+              <div class="task-name">远程仓库上传 main <span class="progress-badge ahead small">100.0%</span></div>
+              <div class="bar done col-5-6">已完成</div>
+            </div>
+            <div class="task">
+              <div class="task-name">真实数据接入准备 <span class="progress-badge normal small">35.0%</span></div>
+              <div class="bar active col-5-6">正在推进</div>
+            </div>
+            <div class="task">
               <div class="task-name">真实硬盘全量接入 <span class="progress-badge stopped small">00.0%</span></div>
               <div class="bar later col-5-6">待接真实硬盘</div>
             </div>
@@ -468,6 +476,16 @@
               <strong>桌面可打开封装 <span class="progress-badge ahead small">100.0%</span></strong>
               <span>桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口和桌面项目文件入口已生成；启动脚本可自动复用现有服务，并用启动锁避免重复启动。</span>
               <div class="progress-line"><span style="width: 100%"></span></div>
+            </div>
+            <div class="card">
+              <strong>远程仓库上传 <span class="progress-badge ahead small">100.0%</span></strong>
+              <span>已上传到 GitHub 仓库 okalexhohongkong/aiDigitalArchives，main 分支已建立跟踪，后续可以直接推送。</span>
+              <div class="progress-line"><span style="width: 100%"></span></div>
+            </div>
+            <div class="card">
+              <strong>真实数据接入准备 <span class="progress-badge normal small">35.0%</span></strong>
+              <span>下一步补齐真实硬盘、NAS、手机、云盘、邮箱、U盘、SD卡、相机等来源的批次、密级提醒和扫描报告流程。</span>
+              <div class="progress-line"><span style="width: 35%"></span></div>
             </div>
             <div class="card">
               <strong>真实硬盘全量接入 <span class="progress-badge stopped small">00.0%</span></strong>
@@ -574,6 +592,22 @@
               <td>桌面入口已生成，并加入启动锁避免重复启动服务；只读扫描入口可选择文件夹后更新索引、验收和备份</td>
             </tr>
             <tr>
+              <td>L11</td>
+              <td>远程仓库上传</td>
+              <td>GitHub main 分支</td>
+              <td><span class="tag done">已完成</span></td>
+              <td><span class="progress-badge ahead small">100.0%</span></td>
+              <td>已推送 32472d3 Initial demo version，远程仓库为 okalexhohongkong/aiDigitalArchives</td>
+            </tr>
+            <tr>
+              <td>L12</td>
+              <td>真实数据接入准备</td>
+              <td>批次、来源、密级提醒、扫描报告流程</td>
+              <td><span class="tag next">推进中</span></td>
+              <td><span class="progress-badge normal small">35.0%</span></td>
+              <td>下一步补成界面入口和 SOP；真实全量接入仍等待硬盘或目录</td>
+            </tr>
+            <tr>
               <td>L8</td>
               <td>真实硬盘全量接入</td>
               <td>40T-60T 真实目录或硬盘分批扫描</td>
@@ -647,6 +681,20 @@
               <td>桌面 `.command` 入口、项目文件快捷入口、启动锁</td>
               <td><span class="progress-badge ahead small">100.0%</span></td>
               <td>主系统、看板和只读扫描入口均可使用</td>
+            </tr>
+            <tr>
+              <td>H 远程仓库线</td>
+              <td>版本提交、远程推送、SSH 推送稳定性</td>
+              <td>GitHub main 分支、本仓库 SSH 别名</td>
+              <td><span class="progress-badge ahead small">100.0%</span></td>
+              <td>git push 已验证</td>
+            </tr>
+            <tr>
+              <td>I 真实接入准备线</td>
+              <td>来源批次、扫描前确认、接入报告</td>
+              <td>待补界面和 SOP</td>
+              <td><span class="progress-badge normal small">35.0%</span></td>
+              <td>下一轮补齐后自检和推送</td>
             </tr>
           </tbody>
         </table>
