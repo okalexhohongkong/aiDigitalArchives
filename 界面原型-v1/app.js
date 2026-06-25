@@ -34,6 +34,7 @@
     batchHistoryList: document.querySelector("#batchHistoryList"),
     sampleValidationStatus: document.querySelector("#sampleValidationStatus"),
     sampleValidationList: document.querySelector("#sampleValidationList"),
+    sampleValidationForm: document.querySelector("#sampleValidationForm"),
     resultBody: document.querySelector("#resultBody"),
     searchInput: document.querySelector("#searchInput"),
     localIndexSearchInput: document.querySelector("#localIndexSearchInput"),
@@ -1030,8 +1031,9 @@
   function renderSampleValidation() {
     if (!dom.sampleValidationList) return;
     const checklist = Array.isArray(config.sampleValidationChecklist) ? config.sampleValidationChecklist : [];
+    const fields = Array.isArray(config.sampleValidationFields) ? config.sampleValidationFields : [];
     if (dom.sampleValidationStatus) {
-      dom.sampleValidationStatus.textContent = checklist.length ? `${checklist.length} 步待点验` : "等待流程";
+      dom.sampleValidationStatus.textContent = checklist.length ? `${checklist.length} 步流程 · ${fields.length} 项登记` : "等待流程";
     }
 
     dom.sampleValidationList.innerHTML = checklist
@@ -1051,6 +1053,29 @@
         `,
       )
       .join("");
+
+    if (!dom.sampleValidationForm) return;
+    dom.sampleValidationForm.innerHTML = `
+      <div class="sample-form-head">
+        <div>
+          <p class="eyebrow">点验登记模板</p>
+          <h3>真实样本接入前，先把这张表填完整</h3>
+        </div>
+        <span>未填完整不进入全量扫描</span>
+      </div>
+      <div class="sample-field-grid">
+        ${fields
+          .map(
+            (field) => `
+              <span>
+                <b>${escapeHtml(field.label)}</b>
+                ${escapeHtml(field.value)}
+              </span>
+            `,
+          )
+          .join("")}
+      </div>
+    `;
   }
 
   function renderSelectedIntake(source) {

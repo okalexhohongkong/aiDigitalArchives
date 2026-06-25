@@ -238,6 +238,21 @@ window.HWS_ARCHIVE_CONFIG = {
     },
   ],
 
+  sampleValidationFields: [
+    { label: "样本来源类型", value: "硬盘 / NAS / 手机 / 云盘 / U盘 / SD卡 / 相机 / 邮箱" },
+    { label: "来源名称", value: "设备编号、卷名、云盘账号或邮箱账号" },
+    { label: "公司/部门/项目", value: "所属公司、部门、项目名称，允许临时项目公司" },
+    { label: "负责人", value: "项目主理人、经办人、部门负责人、最高授权人" },
+    { label: "样本范围", value: "先选 1 个小目录、1 个日期段或 1 个设备样本" },
+    { label: "模糊时间段", value: "如 2018-2020、2024 年会、项目筹备期到收尾期" },
+    { label: "隐私排除", value: "个人相册、账号密码、密钥、私人聊天、非授权客户资料" },
+    { label: "默认密级", value: "默认 L2/L3；发现 L4-L6 立即标记禁训和人工复核" },
+    { label: "扫描方式", value: "只读扫描；不移动、不删除、不改名真实文件" },
+    { label: "NAS 暂存位置", value: "按来源类型、负责人、日期、批次编号进入暂存区" },
+    { label: "AI 候选边界", value: "L0-L2 可候选；L3 授权后候选；L4-L6 禁止训练" },
+    { label: "验收结果", value: "通过、待补充、隔离、暂停、扩大下一批" },
+  ],
+
   fieldSearches: [
     { field: "companyType", label: "公司类型", placeholder: "如：项目公司、集团公司" },
     { field: "project", label: "项目名称", placeholder: "如：汽车品牌发布会" },
