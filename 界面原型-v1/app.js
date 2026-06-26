@@ -18,12 +18,27 @@
   const state = {
     activeFilter: "all",
     activeWorkType: "all",
+    activeRole: config.roles?.[0]?.key || "owner",
+    enabledModules: Object.fromEntries((config.modules || []).map((item) => [item.key, item.enabled !== false])),
     selectedId: archives[0]?.id || "",
   };
 
   const dom = {
     navList: document.querySelector("#navList"),
+    menuSearchInput: document.querySelector("#menuSearchInput"),
     metricGrid: document.querySelector("#metricGrid"),
+    roleSelect: document.querySelector("#roleSelect"),
+    activeRoleName: document.querySelector("#activeRoleName"),
+    roleScopeBadge: document.querySelector("#roleScopeBadge"),
+    roleSummary: document.querySelector("#roleSummary"),
+    moduleSummary: document.querySelector("#moduleSummary"),
+    moduleToggleGrid: document.querySelector("#moduleToggleGrid"),
+    permissionMatrix: document.querySelector("#permissionMatrix"),
+    sectionSearchInput: document.querySelector("#sectionSearchInput"),
+    secondaryMenuGrid: document.querySelector("#secondaryMenuGrid"),
+    fileTypeCount: document.querySelector("#fileTypeCount"),
+    fileTypeLibrary: document.querySelector("#fileTypeLibrary"),
+    formulaDemoGrid: document.querySelector("#formulaDemoGrid"),
     keywordGrid: document.querySelector("#keywordGrid"),
     typeChipRow: document.querySelector("#typeChipRow"),
     quickFilterRow: document.querySelector("#quickFilterRow"),
@@ -372,7 +387,7 @@
   function loadAppearance() {
     const defaults = defaultAppearance();
     try {
-      return { ...defaults, ...JSON.parse(localStorage.getItem("hws-archive-appearance") || "{}") };
+      return { ...defaults, ...JSON.parse(localStorage.getItem("hws-archive-appearance-v2") || "{}") };
     } catch {
       return defaults;
     }
@@ -380,7 +395,7 @@
 
   function saveAppearance(settings) {
     try {
-      localStorage.setItem("hws-archive-appearance", JSON.stringify(settings));
+      localStorage.setItem("hws-archive-appearance-v2", JSON.stringify(settings));
     } catch {
       // The prototype should still work when browser storage is unavailable.
     }
@@ -389,12 +404,16 @@
   function applyAppearance(settings, shouldSave = true) {
     const selectedFont =
       config.appearance.fonts.find((font) => font.key === settings.font) || config.appearance.fonts[0];
+    const selectedPalette = config.appearance.palettes.find((palette) => palette.key === settings.palette);
+    const sidebarActive =
+      selectedPalette?.sidebarActive ||
+      (settings.sidebar.toLowerCase() === "#ffffff" ? lightenHex(settings.accent) : lightenHex(settings.sidebar, 0.12));
     const root = document.documentElement;
     root.style.setProperty("--teal", settings.accent);
     root.style.setProperty("--teal-rgb", hexToRgb(settings.accent));
     root.style.setProperty("--teal-soft", lightenHex(settings.accent));
     root.style.setProperty("--sidebar", settings.sidebar);
-    root.style.setProperty("--sidebar-2", lightenHex(settings.sidebar, 0.12));
+    root.style.setProperty("--sidebar-2", sidebarActive);
     root.style.setProperty("--page", settings.page);
     root.style.setProperty("--font-ui", selectedFont.value);
     root.style.setProperty("--font-size-base", `${settings.fontSize}px`);
@@ -425,12 +444,20 @@
   }
 
   function renderConfigDrivenSections() {
+    if (dom.roleSelect) {
+      dom.roleSelect.innerHTML = (config.roles || [])
+        .map((role) => `<option value="${escapeHtml(role.key)}">${escapeHtml(role.name)}</option>`)
+        .join("");
+      dom.roleSelect.value = state.activeRole;
+    }
+
     dom.navList.innerHTML = config.navItems
       .map(
         (item) => `
           <button class="nav-item ${item.active ? "active" : ""}" type="button" data-section="${escapeHtml(item.section)}">
             <i data-lucide="${escapeHtml(item.icon)}"></i>
             <span>${escapeHtml(item.label)}</span>
+            <small>${escapeHtml((config.secondaryMenus || []).find((menu) => menu.section === item.section)?.items?.[0] || "搜索")}</small>
           </button>
         `,
       )
@@ -501,6 +528,11 @@
       )
       .join("");
 
+    renderSecondaryMenus();
+    renderSaasConsole();
+    renderFileTypeLibrary();
+    renderFormulaExamples();
+
     dom.intakeSourceGrid.innerHTML = config.intakeSources
       .map(
         (source) => `
@@ -562,6 +594,178 @@
 
     dom.fontSizeRange.min = config.appearance.fontSize.min;
     dom.fontSizeRange.max = config.appearance.fontSize.max;
+  }
+
+  function currentRole() {
+    return (config.roles || []).find((role) => role.key === state.activeRole) || config.roles?.[0];
+  }
+
+  function renderSecondaryMenus() {
+    if (!dom.secondaryMenuGrid) return;
+    const term = normalizeQuery(dom.sectionSearchInput?.value || dom.menuSearchInput?.value || "");
+    const menus = (config.secondaryMenus || []).filter((menu) => {
+      const haystack = [menu.title, menu.hint, ...(menu.items || [])].join(" ").toLowerCase();
+      return !term || term.split(/\s+/).every((item) => haystack.includes(item));
+    });
+
+    dom.secondaryMenuGrid.innerHTML = menus
+      .map(
+        (menu) => `
+          <article class="secondary-menu-card" data-section="${escapeHtml(menu.section)}">
+            <div>
+              <p class="eyebrow">${escapeHtml(menu.title)}</p>
+              <h3>${escapeHtml(menu.hint)}</h3>
+            </div>
+            <label class="mini-search">
+              <i data-lucide="search"></i>
+              <input type="search" placeholder="${escapeHtml(menu.title)}内检索" aria-label="${escapeHtml(menu.title)}内检索" />
+            </label>
+            <div class="secondary-chip-row">
+              ${(menu.items || []).map((item) => `<button type="button">${escapeHtml(item)}</button>`).join("")}
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+    refreshIcons();
+  }
+
+  function roleVisibilityForModule(module) {
+    const role = state.activeRole;
+    if (role === "owner" || role === "admin") return "可配置";
+    if (role === "auditor") return module.key === "permission" || module.key === "archive" ? "审计可见" : "只读";
+    if (role === "manager") return ["tenant", "archive", "permission", "ai", "media", "workflow"].includes(module.key) ? "部门可见" : "隐藏";
+    if (role === "staff") return ["archive", "media", "ai"].includes(module.key) ? "本人可见" : "隐藏";
+    return "只读";
+  }
+
+  function renderSaasConsole() {
+    if (!dom.roleSummary) return;
+    const role = currentRole();
+    const modules = config.modules || [];
+    const enabledCount = modules.filter((item) => state.enabledModules[item.key]).length;
+
+    if (dom.activeRoleName) dom.activeRoleName.textContent = role?.name || "权限视角";
+    if (dom.roleScopeBadge) dom.roleScopeBadge.textContent = `${role?.name || "当前角色"} · ${role?.scope || "默认范围"}`;
+    if (dom.moduleSummary) dom.moduleSummary.textContent = `${enabledCount}/${modules.length} 个模块已启用`;
+
+    dom.roleSummary.innerHTML = `
+      <div class="section-mini-head">
+        <div>
+          <p class="eyebrow">当前权限视角</p>
+          <h3>${escapeHtml(role?.name || "最高授权人")}</h3>
+        </div>
+        <span>${escapeHtml(role?.scope || "全局")}</span>
+      </div>
+      <div class="role-list">
+        <strong>可操作</strong>
+        ${(role?.can || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+      </div>
+      <div class="role-list blocked">
+        <strong>限制</strong>
+        ${(role?.blocked || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+      </div>
+    `;
+
+    dom.moduleToggleGrid.innerHTML = modules
+      .map((module) => {
+        const enabled = Boolean(state.enabledModules[module.key]);
+        const visibility = roleVisibilityForModule(module);
+        const disabled = state.activeRole !== "owner" && state.activeRole !== "admin";
+        return `
+          <article class="module-card ${enabled ? "enabled" : "disabled"} ${visibility === "隐藏" ? "limited" : ""}">
+            <div class="module-card-head">
+              <span><i data-lucide="${escapeHtml(module.icon)}"></i></span>
+              <label class="switch" title="${disabled ? "当前角色只读" : "模块开关"}">
+                <input type="checkbox" data-module-key="${escapeHtml(module.key)}" ${enabled ? "checked" : ""} ${disabled ? "disabled" : ""} />
+                <i></i>
+              </label>
+            </div>
+            <h3>${escapeHtml(module.title)}</h3>
+            <p>${escapeHtml(module.desc)}</p>
+            <div class="module-meta">
+              <em>${escapeHtml(module.plan)}</em>
+              <em>${escapeHtml(visibility)}</em>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    renderPermissionMatrix();
+    refreshIcons();
+  }
+
+  function renderPermissionMatrix() {
+    if (!dom.permissionMatrix) return;
+    const roles = config.roles || [];
+    dom.permissionMatrix.innerHTML = `
+      <div class="section-mini-head">
+        <div>
+          <p class="eyebrow">权限矩阵</p>
+          <h3>角色、动作、密级和留痕边界</h3>
+        </div>
+        <span>点击顶部权限视角可切换</span>
+      </div>
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>动作</th>
+              ${roles.map((role) => `<th class="${role.key === state.activeRole ? "active-role" : ""}">${escapeHtml(role.name)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${(config.permissionMatrix || [])
+              .map(
+                (row) => `
+                  <tr>
+                    <td>${escapeHtml(row.action)}</td>
+                    ${roles
+                      .map((role) => `<td class="${role.key === state.activeRole ? "active-role" : ""}">${escapeHtml(row[role.key] || "-")}</td>`)
+                      .join("")}
+                  </tr>
+                `,
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderFileTypeLibrary() {
+    if (!dom.fileTypeLibrary) return;
+    const groups = config.fileTypeGroups || [];
+    const count = groups.reduce((sum, group) => sum + (group.items?.length || 0), 0);
+    if (dom.fileTypeCount) dom.fileTypeCount.textContent = `${count} 个格式关键词`;
+    dom.fileTypeLibrary.innerHTML = groups
+      .map(
+        (group) => `
+          <article class="file-type-group">
+            <h3>${escapeHtml(group.title)}</h3>
+            <div>
+              ${(group.items || []).map((item) => `<button type="button" data-file-query="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join("")}
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  function renderFormulaExamples() {
+    if (!dom.formulaDemoGrid) return;
+    dom.formulaDemoGrid.innerHTML = (config.formulaExamples || [])
+      .map(
+        (item) => `
+          <article class="formula-card">
+            <h3>${escapeHtml(item.title)}</h3>
+            <code>${escapeHtml(item.formula)}</code>
+            <p>${escapeHtml(item.sample)}</p>
+          </article>
+        `,
+      )
+      .join("");
   }
 
   function normalizeQuery(value) {
@@ -1230,11 +1434,57 @@
   }
 
   function bindEvents() {
+    dom.roleSelect?.addEventListener("change", () => {
+      state.activeRole = dom.roleSelect.value;
+      renderSaasConsole();
+      renderResults();
+    });
+
+    dom.menuSearchInput?.addEventListener("input", () => {
+      const term = normalizeQuery(dom.menuSearchInput.value);
+      dom.navList.querySelectorAll(".nav-item").forEach((button) => {
+        const text = button.textContent.toLowerCase();
+        button.hidden = Boolean(term) && !term.split(/\s+/).every((item) => text.includes(item));
+      });
+      if (dom.sectionSearchInput) dom.sectionSearchInput.value = dom.menuSearchInput.value;
+      renderSecondaryMenus();
+    });
+
+    dom.sectionSearchInput?.addEventListener("input", renderSecondaryMenus);
+
     dom.navList.addEventListener("click", (event) => {
       const button = event.target.closest(".nav-item");
       if (!button) return;
       dom.navList.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
+    });
+
+    dom.secondaryMenuGrid?.addEventListener("click", (event) => {
+      const chip = event.target.closest(".secondary-chip-row button");
+      if (!chip) return;
+      dom.searchInput.value = chip.textContent.trim();
+      renderResults();
+    });
+
+    dom.secondaryMenuGrid?.addEventListener("input", (event) => {
+      const input = event.target.closest(".mini-search input");
+      if (!input) return;
+      dom.searchInput.value = input.value;
+      renderResults();
+    });
+
+    dom.moduleToggleGrid?.addEventListener("change", (event) => {
+      const input = event.target.closest("input[data-module-key]");
+      if (!input) return;
+      state.enabledModules[input.dataset.moduleKey] = input.checked;
+      renderSaasConsole();
+    });
+
+    dom.fileTypeLibrary?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-file-query]");
+      if (!button) return;
+      dom.formatInput.value = button.dataset.fileQuery || button.textContent.trim();
+      renderResults();
     });
 
     dom.quickFilterRow.addEventListener("click", (event) => {

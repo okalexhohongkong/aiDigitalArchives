@@ -25,6 +25,11 @@
           </div>
         </div>
 
+        <label class="sidebar-search" aria-label="菜单检索">
+          <i data-lucide="search"></i>
+          <input id="menuSearchInput" type="search" placeholder="搜索一级/二级菜单" />
+        </label>
+
         <nav id="navList" class="nav-list" aria-label="系统一级菜单"></nav>
 
         <div class="storage-panel">
@@ -46,6 +51,10 @@
             <h1>AI 数字档案管理系统 1.0</h1>
           </div>
           <div class="top-actions">
+            <label class="role-switch">
+              <span>权限视角</span>
+              <select id="roleSelect" aria-label="权限视角"></select>
+            </label>
             <button id="appearanceToggle" class="tool-button" type="button" aria-expanded="false" aria-controls="appearancePanel">
               <i data-lucide="palette"></i>
               <span>界面设置</span>
@@ -55,7 +64,7 @@
             </button>
             <button class="user-chip" type="button">
               <span class="avatar">A</span>
-              <span>最高授权人</span>
+              <span id="activeRoleName">最高授权人</span>
             </button>
           </div>
         </header>
@@ -64,7 +73,7 @@
           <div class="settings-block color-settings">
             <div>
               <p class="eyebrow">颜色调色盘</p>
-              <h2>主题色</h2>
+              <h2>主题、字体、字号可自由组合</h2>
             </div>
             <div id="paletteRow" class="palette-row"></div>
           </div>
@@ -72,15 +81,15 @@
           <div class="settings-block custom-colors">
             <label class="color-field">
               <span>主色</span>
-              <input id="accentColorInput" type="color" value="#12756f" />
+              <input id="accentColorInput" type="color" value="#0f766e" />
             </label>
             <label class="color-field">
               <span>侧栏</span>
-              <input id="sidebarColorInput" type="color" value="#12201a" />
+              <input id="sidebarColorInput" type="color" value="#ffffff" />
             </label>
             <label class="color-field">
               <span>背景</span>
-              <input id="pageColorInput" type="color" value="#f5f6f2" />
+              <input id="pageColorInput" type="color" value="#f3f6fa" />
             </label>
           </div>
 
@@ -110,6 +119,20 @@
               <i data-lucide="mic"></i>
               <span>语音</span>
             </button>
+          </div>
+
+          <div class="menu-search-panel" aria-label="一级二级菜单检索">
+            <div class="keyword-title">
+              <div>
+                <p class="eyebrow">一级 / 二级菜单检索入口</p>
+                <h2>每个业务模块都带自己的搜索入口</h2>
+              </div>
+              <label class="format-search">
+                <span>菜单内检索</span>
+                <input id="sectionSearchInput" type="search" placeholder="如：权限、批次、合同、照片、员工、Webhook" />
+              </label>
+            </div>
+            <div id="secondaryMenuGrid" class="secondary-menu-grid"></div>
           </div>
 
           <div class="keyword-panel" aria-label="项目、公司、部门、员工关键词检索">
@@ -161,6 +184,52 @@
         </section>
 
         <section id="metricGrid" class="metric-grid" aria-label="资产概览"></section>
+
+        <section class="saas-console workspace-panel" aria-label="SaaS平台底座">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">SaaS 架构底座</p>
+              <h2>多租户、模块化、权限矩阵、审计和接口都要能组合开关</h2>
+            </div>
+            <span id="roleScopeBadge" class="nas-target">最高授权人视角</span>
+          </div>
+          <div class="saas-layout">
+            <div class="role-summary" id="roleSummary"></div>
+            <div class="module-center">
+              <div class="section-mini-head">
+                <div>
+                  <p class="eyebrow">模块中心</p>
+                  <h3>按人群、部门、版本关闭或打开</h3>
+                </div>
+                <span id="moduleSummary">0 个模块</span>
+              </div>
+              <div id="moduleToggleGrid" class="module-toggle-grid"></div>
+            </div>
+            <div class="permission-matrix" id="permissionMatrix"></div>
+          </div>
+        </section>
+
+        <section class="workspace-panel file-type-panel" aria-label="电子文件类型库">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">电子文件类型库</p>
+              <h2>历史上发生过的电子档案类型，先主动写入分类词典</h2>
+            </div>
+            <span id="fileTypeCount" class="nas-target">等待加载</span>
+          </div>
+          <div id="fileTypeLibrary" class="file-type-library"></div>
+        </section>
+
+        <section class="workspace-panel formula-panel" aria-label="演示公式样例">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Demo 公式样例</p>
+              <h2>评分、密级、完整度、同步健康都给出可演示口径</h2>
+            </div>
+            <span class="nas-target">可替换成正式规则</span>
+          </div>
+          <div id="formulaDemoGrid" class="formula-demo-grid"></div>
+        </section>
 
         <section class="workspace-panel intake-panel" aria-label="多源采集入口">
           <div class="panel-heading">
