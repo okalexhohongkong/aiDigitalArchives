@@ -35,6 +35,7 @@
     sampleValidationStatus: document.querySelector("#sampleValidationStatus"),
     sampleValidationList: document.querySelector("#sampleValidationList"),
     sampleValidationForm: document.querySelector("#sampleValidationForm"),
+    samplePreflightList: document.querySelector("#samplePreflightList"),
     resultBody: document.querySelector("#resultBody"),
     searchInput: document.querySelector("#searchInput"),
     localIndexSearchInput: document.querySelector("#localIndexSearchInput"),
@@ -1032,8 +1033,11 @@
     if (!dom.sampleValidationList) return;
     const checklist = Array.isArray(config.sampleValidationChecklist) ? config.sampleValidationChecklist : [];
     const fields = Array.isArray(config.sampleValidationFields) ? config.sampleValidationFields : [];
+    const preflightChecks = Array.isArray(config.samplePreflightChecks) ? config.samplePreflightChecks : [];
     if (dom.sampleValidationStatus) {
-      dom.sampleValidationStatus.textContent = checklist.length ? `${checklist.length} 步流程 · ${fields.length} 项登记` : "等待流程";
+      dom.sampleValidationStatus.textContent = checklist.length
+        ? `${checklist.length} 步流程 · ${fields.length} 项登记 · ${preflightChecks.length} 项检查`
+        : "等待流程";
     }
 
     dom.sampleValidationList.innerHTML = checklist
@@ -1071,6 +1075,30 @@
                 <b>${escapeHtml(field.label)}</b>
                 ${escapeHtml(field.value)}
               </span>
+            `,
+          )
+          .join("")}
+      </div>
+    `;
+
+    if (!dom.samplePreflightList) return;
+    dom.samplePreflightList.innerHTML = `
+      <div class="sample-form-head">
+        <div>
+          <p class="eyebrow">扫描前检查清单</p>
+          <h3>这些关口未通过，不进入真实扫描</h3>
+        </div>
+        <span>先点验，再扩大</span>
+      </div>
+      <div class="preflight-grid">
+        ${preflightChecks
+          .map(
+            (check) => `
+              <article class="preflight-card">
+                <strong>${escapeHtml(check.title)}</strong>
+                <p>${escapeHtml(check.detail)}</p>
+                <em>${escapeHtml(check.status)}</em>
+              </article>
             `,
           )
           .join("")}

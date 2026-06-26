@@ -1081,6 +1081,54 @@ h2 {
   color: var(--ink);
 }
 
+.sample-preflight-list {
+  margin: 0 18px 18px;
+  padding: 16px;
+  background: #fbfcf9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.preflight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.preflight-card {
+  display: grid;
+  gap: 8px;
+  min-height: 132px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.preflight-card strong {
+  font-size: 14px;
+}
+
+.preflight-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.preflight-card em {
+  align-self: end;
+  width: max-content;
+  max-width: 100%;
+  padding: 5px 8px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
 .intake-workflow {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1556,7 +1604,8 @@ h2 {
   .intake-workflow,
   .batch-history-list,
   .sample-validation-list,
-  .sample-field-grid {
+  .sample-field-grid,
+  .preflight-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -1601,7 +1650,8 @@ h2 {
   .intake-workflow,
   .batch-history-list,
   .sample-validation-list,
-  .sample-field-grid {
+  .sample-field-grid,
+  .preflight-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1673,6 +1723,7 @@ h2 {
   .batch-history-list,
   .sample-validation-list,
   .sample-field-grid,
+  .preflight-grid,
   .local-search-grid,
   .type-chip-row {
     grid-template-columns: 1fr;

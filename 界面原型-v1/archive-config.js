@@ -253,6 +253,17 @@ window.HWS_ARCHIVE_CONFIG = {
     { label: "验收结果", value: "通过、待补充、隔离、暂停、扩大下一批" },
   ],
 
+  samplePreflightChecks: [
+    { title: "只读原则", detail: "确认本轮只建立索引和报告，不移动、不删除、不改名真实文件。", status: "必须通过" },
+    { title: "来源授权", detail: "确认来源人、负责人、公司/部门/项目、授权范围和隐私排除项。", status: "必须通过" },
+    { title: "样本范围", detail: "先选小目录、日期段或单设备样本，不直接扫描整块 40T-60T。", status: "必须通过" },
+    { title: "空间与备份", detail: "确认本机/NAS 有足够索引空间；扫描前不复制大文件，先备份小索引。", status: "必须通过" },
+    { title: "安全风险", detail: "未知 U盘、旧电脑、邮件附件先标风险；高风险文件不进入正式库。", status: "人工复核" },
+    { title: "密级禁训", detail: "L4-L6、财务、人事、合同、隐私、密钥默认进入禁训和人工复核。", status: "人工复核" },
+    { title: "路径脱敏", detail: "浏览器只显示相对路径和编号；本机完整路径只留在本地服务端。", status: "必须通过" },
+    { title: "负责人签字", detail: "扫描报告、批次摘要、下一批范围必须由负责人确认。", status: "必须通过" },
+  ],
+
   fieldSearches: [
     { field: "companyType", label: "公司类型", placeholder: "如：项目公司、集团公司" },
     { field: "project", label: "项目名称", placeholder: "如：汽车品牌发布会" },
