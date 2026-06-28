@@ -22,6 +22,7 @@
     moduleLayouts: "hws-archive-module-layouts-v1",
     menuLayout: "hws-archive-menu-layout-v1",
     customSuggestions: "hws-archive-custom-suggestions-v1",
+    previewDock: "hws-archive-preview-dock-v1",
   };
   const menuPositionOptions = ["left", "top", "right", "bottom"];
   const menuDisplayModeOptions = ["fixed", "hover"];
@@ -151,6 +152,7 @@
   }
 
   const savedCustomSuggestions = readJson(layoutStorageKeys.customSuggestions, []);
+  const savedPreviewDock = readJson(layoutStorageKeys.previewDock, {});
 
   const state = {
     activeFilter: "all",
@@ -165,6 +167,11 @@
     menuModuleMap: loadMenuModuleMap(),
     moduleLayouts: loadModuleLayouts(),
     menuLayout: loadMenuLayout(),
+    previewDock: {
+      ratio: ["quarter", "half", "threeQuarter", "full"].includes(savedPreviewDock?.ratio) ? savedPreviewDock.ratio : "half",
+      locked: Boolean(savedPreviewDock?.locked),
+      open: false,
+    },
     dragPayload: null,
     selectedId: archives[0]?.id || "",
   };
@@ -199,6 +206,11 @@
     keywordGrid: document.querySelector("#keywordGrid"),
     typeChipRow: document.querySelector("#typeChipRow"),
     quickFilterRow: document.querySelector("#quickFilterRow"),
+    sourceVaultCategoryGrid: document.querySelector("#sourceVaultCategoryGrid"),
+    sourceVaultInterfaceGrid: document.querySelector("#sourceVaultInterfaceGrid"),
+    dataRepositorySeries: document.querySelector("#dataRepositorySeries"),
+    annualBackupPolicyGrid: document.querySelector("#annualBackupPolicyGrid"),
+    videoIncrementalRuleGrid: document.querySelector("#videoIncrementalRuleGrid"),
     intakeSourceGrid: document.querySelector("#intakeSourceGrid"),
     intakeSelected: document.querySelector("#intakeSelected"),
     intakeWorkflow: document.querySelector("#intakeWorkflow"),
@@ -212,6 +224,9 @@
     dailyLedgerBadge: document.querySelector("#dailyLedgerBadge"),
     dailyLedgerSummary: document.querySelector("#dailyLedgerSummary"),
     dailyLedgerBody: document.querySelector("#dailyLedgerBody"),
+    timeCapsulePolicyGrid: document.querySelector("#timeCapsulePolicyGrid"),
+    timeCapsuleRetentionGrid: document.querySelector("#timeCapsuleRetentionGrid"),
+    timeCapsuleEventBody: document.querySelector("#timeCapsuleEventBody"),
     libraryBoardCount: document.querySelector("#libraryBoardCount"),
     libraryBoardGrid: document.querySelector("#libraryBoardGrid"),
     contentDirectorySearchInput: document.querySelector("#contentDirectorySearchInput"),
@@ -253,6 +268,18 @@
     previewMeta: document.querySelector("#previewMeta"),
     previewSummary: document.querySelector("#previewSummary"),
     permissionStrip: document.querySelector("#permissionStrip"),
+    openPreviewDockButton: document.querySelector("#openPreviewDockButton"),
+    previewDock: document.querySelector("#previewDock"),
+    previewDockPanel: document.querySelector("#previewDockPanel"),
+    previewDockTitle: document.querySelector("#previewDockTitle"),
+    previewDockLevel: document.querySelector("#previewDockLevel"),
+    previewDockFrame: document.querySelector("#previewDockFrame"),
+    previewDockMeta: document.querySelector("#previewDockMeta"),
+    previewDockSummary: document.querySelector("#previewDockSummary"),
+    previewRatioControls: document.querySelector("#previewRatioControls"),
+    previewRatioLockToggle: document.querySelector("#previewRatioLockToggle"),
+    previewDockClose: document.querySelector("#previewDockClose"),
+    previewRatioStatus: document.querySelector("#previewRatioStatus"),
     finishList: document.querySelector("#finishList"),
     tableHeadRow: document.querySelector(".archive-table thead tr"),
   };
@@ -1109,11 +1136,13 @@
     renderSaasConsole();
     renderFileTypeLibrary();
     renderFormulaExamples();
+    renderSourceVault();
     renderResiliencePlans();
     renderAgentConnectors();
     renderStorageStatus();
     renderDownloadGovernance();
     renderDailyLedger();
+    renderTimeCapsule();
 
     dom.intakeSourceGrid.innerHTML = config.intakeSources
       .map(
@@ -1619,6 +1648,108 @@
     refreshIcons();
   }
 
+  function renderSourceVault() {
+    if (!dom.sourceVaultCategoryGrid) return;
+    dom.sourceVaultCategoryGrid.innerHTML = (config.sourceVaultCategories || [])
+      .map(
+        (source) => `
+          <article class="source-vault-card ${statusClass(source.risk)}">
+            <div class="source-vault-head">
+              <span><i data-lucide="${escapeHtml(source.icon || "database")}"></i></span>
+              <div>
+                <p class="eyebrow">数据来源</p>
+                <h3>${escapeHtml(source.name)}</h3>
+              </div>
+              <em>${escapeHtml(source.risk)}</em>
+            </div>
+            <p>${escapeHtml(source.examples)}</p>
+            <div class="source-vault-meta">
+              <span><b>接口</b>${escapeHtml(source.interfaces)}</span>
+              <span><b>入库</b>${escapeHtml(source.repository)}</span>
+              <span><b>策略</b>${escapeHtml(source.policy)}</span>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+
+    if (dom.sourceVaultInterfaceGrid) {
+      dom.sourceVaultInterfaceGrid.innerHTML = (config.sourceVaultInterfaces || [])
+        .map(
+          (item) => `
+            <article class="source-interface-card">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span>${escapeHtml(item.value)}</span>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.dataRepositorySeries) {
+      dom.dataRepositorySeries.innerHTML = (config.dataRepositorySeries || [])
+        .map(
+          (series) => `
+            <article class="data-series-card">
+              <div class="source-vault-head">
+                <span><i data-lucide="${escapeHtml(series.icon || "archive")}"></i></span>
+                <div>
+                  <p class="eyebrow">数据系列</p>
+                  <h3>${escapeHtml(series.name)}</h3>
+                </div>
+              </div>
+              <p>${escapeHtml(series.principle)}</p>
+              <div class="source-vault-meta">
+                <span><b>内容</b>${escapeHtml(series.contents)}</span>
+                <span><b>备份</b>${escapeHtml(series.backup)}</span>
+                <span><b>用途</b>${escapeHtml(series.usage)}</span>
+              </div>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.annualBackupPolicyGrid) {
+      dom.annualBackupPolicyGrid.innerHTML = (config.annualIncrementalBackupPolicies || [])
+        .map(
+          (policy) => `
+            <article class="annual-backup-card">
+              <strong>${escapeHtml(policy.name)}</strong>
+              <span><b>节奏</b>${escapeHtml(policy.cadence)}</span>
+              <span><b>范围</b>${escapeHtml(policy.scope)}</span>
+              <span><b>审批</b>${escapeHtml(policy.approval)}</span>
+              <span><b>保留</b>${escapeHtml(policy.retention)}</span>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.videoIncrementalRuleGrid) {
+      dom.videoIncrementalRuleGrid.innerHTML = (config.videoIncrementalRules || [])
+        .map(
+          (rule) => `
+            <article class="video-rule-card">
+              <div class="video-rule-head">
+                <strong>${escapeHtml(rule.level)}</strong>
+                <em>${escapeHtml(rule.threshold)}</em>
+              </div>
+              <p>${escapeHtml(rule.action)}</p>
+              <div class="source-vault-meta">
+                <span><b>备份</b>${escapeHtml(rule.backup)}</span>
+                <span><b>人工</b>${escapeHtml(rule.human)}</span>
+                <span><b>入库</b>${escapeHtml(rule.repository)}</span>
+              </div>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    refreshIcons();
+  }
+
   function renderResiliencePlans() {
     if (!dom.resiliencePlanGrid) return;
     dom.resiliencePlanGrid.innerHTML = (config.resiliencePlans || [])
@@ -1833,6 +1964,180 @@
         `,
       )
       .join("");
+  }
+
+  function renderTimeCapsule() {
+    if (!dom.timeCapsulePolicyGrid) return;
+    dom.timeCapsulePolicyGrid.innerHTML = (config.timeCapsulePolicies || [])
+      .map(
+        (policy) => `
+          <article class="time-capsule-card ${statusClass(policy.status)}">
+            <div class="time-capsule-head">
+              <span><i data-lucide="${escapeHtml(policy.icon || "history")}"></i></span>
+              <em>${escapeHtml(policy.status)}</em>
+            </div>
+            <h3>${escapeHtml(policy.name)}</h3>
+            <p>${escapeHtml(policy.scope)}</p>
+            <small>${escapeHtml(policy.gate)}</small>
+          </article>
+        `,
+      )
+      .join("");
+
+    if (dom.timeCapsuleRetentionGrid) {
+      dom.timeCapsuleRetentionGrid.innerHTML = (config.timeCapsuleRetention || [])
+        .map(
+          (item) => `
+            <article class="retention-card">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span>${escapeHtml(item.rule)}</span>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.timeCapsuleEventBody) {
+      dom.timeCapsuleEventBody.innerHTML = (config.timeCapsuleEvents || [])
+        .map(
+          (event) => `
+            <tr>
+              <td>${escapeHtml(event.time)}</td>
+              <td>${escapeHtml(event.person)}</td>
+              <td><span class="ledger-action">${escapeHtml(event.auth)}</span></td>
+              <td>
+                <strong>${escapeHtml(event.device)}</strong>
+                <small>${escapeHtml(event.network)}</small>
+              </td>
+              <td>${escapeHtml(event.location)}</td>
+              <td>${escapeHtml(event.action)}</td>
+              <td>${escapeHtml(event.target)}</td>
+              <td>${escapeHtml(event.evidence)}</td>
+              <td><span class="ledger-result ${statusClass(event.result)}">${escapeHtml(event.result)}</span></td>
+            </tr>
+          `,
+        )
+        .join("");
+    }
+    refreshIcons();
+  }
+
+  function selectedArchive() {
+    return archives.find((item) => item.id === state.selectedId) || archives[0];
+  }
+
+  function savePreviewDockState() {
+    writeJson(layoutStorageKeys.previewDock, {
+      ratio: state.previewDock.ratio,
+      locked: state.previewDock.locked,
+    });
+  }
+
+  function previewRatioLabel(ratio = state.previewDock.ratio) {
+    return {
+      quarter: "1/4",
+      half: "1/2",
+      threeQuarter: "3/4",
+      full: "4/4",
+    }[ratio] || "1/2";
+  }
+
+  function applyPreviewDockState() {
+    if (!dom.previewDock) return;
+    dom.previewDock.classList.remove("preview-ratio-quarter", "preview-ratio-half", "preview-ratio-threeQuarter", "preview-ratio-full");
+    dom.previewDock.classList.add(`preview-ratio-${state.previewDock.ratio}`);
+    dom.previewDock.hidden = !state.previewDock.open;
+
+    dom.previewRatioControls?.querySelectorAll("button[data-preview-ratio]").forEach((button) => {
+      const active = button.dataset.previewRatio === state.previewDock.ratio;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    if (dom.previewRatioLockToggle) {
+      dom.previewRatioLockToggle.classList.toggle("active", state.previewDock.locked);
+      dom.previewRatioLockToggle.innerHTML = `<i data-lucide="${state.previewDock.locked ? "lock" : "unlock"}"></i>`;
+      dom.previewRatioLockToggle.setAttribute("aria-label", state.previewDock.locked ? "解除预览比例锁定" : "锁定预览比例");
+    }
+
+    if (dom.previewRatioStatus) {
+      dom.previewRatioStatus.textContent = state.previewDock.locked
+        ? `已锁定 ${previewRatioLabel()} 预览比例`
+        : `当前 ${previewRatioLabel()} · 双击切换比例`;
+    }
+    refreshIcons();
+  }
+
+  function setPreviewRatio(ratio, options = {}) {
+    if (!["quarter", "half", "threeQuarter", "full"].includes(ratio)) return;
+    if (state.previewDock.locked && !options.force) return;
+    state.previewDock.ratio = ratio;
+    savePreviewDockState();
+    applyPreviewDockState();
+  }
+
+  function cyclePreviewRatio() {
+    if (state.previewDock.locked) return;
+    const order = ["quarter", "half", "threeQuarter", "full"];
+    const index = order.indexOf(state.previewDock.ratio);
+    setPreviewRatio(order[(index + 1) % order.length]);
+  }
+
+  function previewFrameMarkup(item) {
+    const mediaLabel = {
+      video: "视频/视觉预览",
+      audio: "录音波形和转写",
+      doc: "文档 PDF 预览",
+      image: "图片墙预览",
+    }[item?.preview] || "作品预览";
+
+    return `
+      <div class="video-stage">
+        <button class="play-button" type="button" aria-label="播放预览">
+          <i data-lucide="${item?.preview === "doc" ? "file-text" : "play"}"></i>
+        </button>
+        <div>
+          <strong>${escapeHtml(mediaLabel)}</strong>
+          <span>${escapeHtml(item?.id || "未选择")} · ${escapeHtml(item?.format || "--")} · ${escapeHtml(item?.status || "--")}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderPreviewDock(item = selectedArchive()) {
+    if (!dom.previewDockTitle || !item) return;
+    dom.previewDockTitle.textContent = item.title;
+    dom.previewDockLevel.textContent = item.level;
+    dom.previewDockSummary.textContent = item.summary;
+    dom.previewDockFrame.className = `preview-frame ${item.preview}-preview`;
+    dom.previewDockFrame.innerHTML = previewFrameMarkup(item);
+    dom.previewDockMeta.innerHTML = `
+      <div class="preview-profile-card">
+        <div class="profile-card-head">
+          <strong>锁定比例预览</strong>
+          <span>${escapeHtml(item.format)} · ${escapeHtml(item.workType)}</span>
+        </div>
+        <div class="profile-row-grid">
+          <span><b>作者</b><em>${escapeHtml(item.author)}</em></span>
+          <span><b>负责人</b><em>${escapeHtml(item.owner)}</em></span>
+          <span><b>完整度</b><em>${escapeHtml(item.completionScore)}%</em></span>
+          <span><b>作品水准</b><em>${escapeHtml(item.qualityScore)}</em></span>
+          <span><b>密级</b><em>${escapeHtml(item.securityLevelName)}</em></span>
+          <span><b>胶囊规则</b><em>阅读行为进入时光胶囊</em></span>
+        </div>
+      </div>
+    `;
+    applyPreviewDockState();
+  }
+
+  function openPreviewDock(item = selectedArchive()) {
+    state.previewDock.open = true;
+    renderPreviewDock(item);
+  }
+
+  function closePreviewDock() {
+    state.previewDock.open = false;
+    applyPreviewDockState();
   }
 
   function renderFormulaExamples() {
@@ -2418,17 +2723,7 @@
       image: "图片墙预览",
     }[item.preview];
 
-    dom.previewFrame.innerHTML = `
-      <div class="video-stage">
-        <button id="playButton" class="play-button" type="button" aria-label="播放预览">
-          <i data-lucide="${item.preview === "doc" ? "file-text" : "play"}"></i>
-        </button>
-        <div>
-          <strong>${escapeHtml(mediaLabel)}</strong>
-          <span>${escapeHtml(item.id)} · ${escapeHtml(item.format)} · ${escapeHtml(item.status)}</span>
-        </div>
-      </div>
-    `;
+    dom.previewFrame.innerHTML = previewFrameMarkup(item);
 
     const profileRows = [
       ["副标题", item.subtitle],
@@ -2502,7 +2797,7 @@
       </div>
     `;
 
-    const playButton = document.querySelector("#playButton");
+    const playButton = dom.previewFrame.querySelector(".play-button");
     playButton.addEventListener("click", () => {
       const icon = playButton.querySelector("i");
       playButton.setAttribute("aria-label", "预览中");
@@ -2512,6 +2807,7 @@
     });
 
     renderPermissionActions(item);
+    if (state.previewDock.open) renderPreviewDock(item);
 
     refreshIcons();
   }
@@ -3195,6 +3491,29 @@
       renderResults();
     });
 
+    dom.openPreviewDockButton?.addEventListener("click", () => openPreviewDock());
+
+    dom.previewRatioControls?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-preview-ratio]");
+      if (!button) return;
+      setPreviewRatio(button.dataset.previewRatio, { force: true });
+    });
+
+    dom.previewRatioLockToggle?.addEventListener("click", () => {
+      state.previewDock.locked = !state.previewDock.locked;
+      savePreviewDockState();
+      applyPreviewDockState();
+    });
+
+    dom.previewDockClose?.addEventListener("click", closePreviewDock);
+    dom.previewDock?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-preview-close]")) closePreviewDock();
+    });
+    dom.previewDockPanel?.addEventListener("dblclick", (event) => {
+      if (event.target.closest("button, input, select, textarea")) return;
+      cyclePreviewRatio();
+    });
+
     dom.moduleToggleGrid?.addEventListener("change", (event) => {
       const input = event.target.closest("input[data-module-key]");
       if (!input) return;
@@ -3302,6 +3621,7 @@
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
+        if (state.previewDock.open) closePreviewDock();
         closeSuggestionMenu();
         return;
       }
@@ -3324,6 +3644,7 @@
   renderConfigDrivenSections();
   applyAppearance(loadAppearance(), false);
   applyMenuLayout(false);
+  applyPreviewDockState();
   bindEvents();
   renderResults();
   renderFinishList();

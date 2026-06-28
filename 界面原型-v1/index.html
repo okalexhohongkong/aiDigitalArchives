@@ -353,6 +353,45 @@
           <div id="formulaDemoGrid" class="formula-demo-grid"></div>
         </section>
 
+        <section class="workspace-panel source-vault-panel managed-module" data-module-id="sourceVault" data-module-title="数据来源总库" aria-label="数据来源总库">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">数据来源总库</p>
+              <h2>U盘、硬盘、NAS、云、邮箱、OA、飞书、钉钉、企微和共享设备统一建仓</h2>
+            </div>
+            <span class="nas-target">原始数据只增量不减少</span>
+          </div>
+          <div id="sourceVaultCategoryGrid" class="source-vault-category-grid"></div>
+          <div class="source-vault-band">
+            <div>
+              <p class="eyebrow">接口预留</p>
+              <h2>直连、局域网、云端、邮箱、协作平台、无线共享都先预留入口</h2>
+            </div>
+            <div id="sourceVaultInterfaceGrid" class="source-vault-interface-grid"></div>
+          </div>
+          <div class="source-vault-band">
+            <div>
+              <p class="eyebrow">三大数据系列</p>
+              <h2>原始增量库、整理归档库、可调动商业化作品库分层治理</h2>
+            </div>
+            <div id="dataRepositorySeries" class="data-repository-series"></div>
+          </div>
+          <div class="source-vault-band">
+            <div>
+              <p class="eyebrow">年度增量备份</p>
+              <h2>每年全员邮箱和电脑硬盘做增量备份，NAS、云端和平台清单持续对账</h2>
+            </div>
+            <div id="annualBackupPolicyGrid" class="annual-backup-policy-grid"></div>
+          </div>
+          <div class="source-vault-band video-rule-band">
+            <div>
+              <p class="eyebrow">视频大文件增量规则</p>
+              <h2>视频单独建库，1G 以上必须人工分类，原片走冷存储和代理预览</h2>
+            </div>
+            <div id="videoIncrementalRuleGrid" class="video-increment-rule-grid"></div>
+          </div>
+        </section>
+
         <section class="workspace-panel intake-panel managed-module" data-module-id="intake" data-module-title="全介质采集入口" aria-label="多源采集入口">
           <div class="panel-heading">
             <div>
@@ -450,6 +489,42 @@
           </div>
         </section>
 
+        <section class="workspace-panel time-capsule-panel managed-module" data-module-id="timeCapsule" data-module-title="阅读时光胶囊" aria-label="阅读时光胶囊">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">阅读时光胶囊</p>
+              <h2>记录谁、用什么电脑和网络、在哪里、通过什么身份校验、看了什么和发生了什么</h2>
+            </div>
+            <span class="nas-target danger">真实摄像头/录屏/定位需单独授权</span>
+          </div>
+          <div id="timeCapsulePolicyGrid" class="time-capsule-policy-grid"></div>
+          <div class="time-capsule-retention">
+            <div>
+              <p class="eyebrow">留存规则</p>
+              <h2>按密级决定记录粒度、留存周期和异常冻结策略</h2>
+            </div>
+            <div id="timeCapsuleRetentionGrid" class="time-capsule-retention-grid"></div>
+          </div>
+          <div class="ledger-table-wrap">
+            <table class="ledger-table">
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>阅读人</th>
+                  <th>身份方式</th>
+                  <th>电脑/网络</th>
+                  <th>位置</th>
+                  <th>动作</th>
+                  <th>作品</th>
+                  <th>证据</th>
+                  <th>结果</th>
+                </tr>
+              </thead>
+              <tbody id="timeCapsuleEventBody"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="workspace-panel batch-history-panel managed-module" data-module-id="batchHistory" data-module-title="扫描批次历史" aria-label="扫描批次历史">
           <div class="panel-heading">
             <div>
@@ -541,7 +616,13 @@
                 <p class="eyebrow">媒体预览</p>
                 <h2 id="previewTitle">某汽车品牌发布会策划案</h2>
               </div>
-              <span id="previewLevel" class="level-pill">L2</span>
+              <div class="preview-heading-actions">
+                <span id="previewLevel" class="level-pill">L2</span>
+                <button id="openPreviewDockButton" class="secondary-action preview-open-button" type="button">
+                  <i data-lucide="maximize-2"></i>
+                  <span>弹窗预览</span>
+                </button>
+              </div>
             </div>
 
             <div id="previewFrame" class="preview-frame video-preview">
@@ -625,6 +706,42 @@
           </article>
         </section>
       </main>
+
+      <section id="previewDock" class="preview-dock preview-ratio-half" hidden aria-label="作品预览弹窗">
+        <div class="preview-dock-backdrop" data-preview-close="true"></div>
+        <article id="previewDockPanel" class="preview-dock-panel">
+          <header class="preview-dock-head">
+            <div>
+              <p class="eyebrow">作品弹窗预览</p>
+              <h2 id="previewDockTitle">等待选择作品</h2>
+            </div>
+            <div class="preview-dock-actions">
+              <span id="previewDockLevel" class="level-pill">--</span>
+              <div id="previewRatioControls" class="preview-ratio-controls" aria-label="预览窗口比例">
+                <button type="button" data-preview-ratio="quarter">1/4</button>
+                <button type="button" data-preview-ratio="half">1/2</button>
+                <button type="button" data-preview-ratio="threeQuarter">3/4</button>
+                <button type="button" data-preview-ratio="full">4/4</button>
+              </div>
+              <button id="previewRatioLockToggle" class="icon-button ratio-lock-toggle" type="button" aria-label="锁定预览比例">
+                <i data-lucide="unlock"></i>
+              </button>
+              <button id="previewDockClose" class="icon-button" type="button" aria-label="关闭弹窗预览">
+                <i data-lucide="panel-right-close"></i>
+              </button>
+            </div>
+          </header>
+          <div id="previewDockFrame" class="preview-frame doc-preview"></div>
+          <div id="previewDockMeta" class="preview-meta"></div>
+          <div class="transcript-box">
+            <div class="transcript-title">
+              <span>摘要/阅读说明</span>
+              <em id="previewRatioStatus">双击预览区切换比例</em>
+            </div>
+            <p id="previewDockSummary">请选择一条档案后打开预览。</p>
+          </div>
+        </article>
+      </section>
     </div>
   </body>
 </html>
