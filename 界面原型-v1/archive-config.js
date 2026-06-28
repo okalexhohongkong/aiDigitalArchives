@@ -12,9 +12,7 @@ window.HWS_ARCHIVE_CONFIG = {
     { section: "media", icon: "play-square", label: "媒体与转写中心" },
     { section: "finish", icon: "sparkles", label: "AI 补全评分" },
     { section: "permission", icon: "shield-check", label: "权限与审计" },
-    { section: "integration", icon: "blocks", label: "平台接口中心" },
-    { section: "agent", icon: "bot", label: "Agent 接入中心" },
-    { section: "backup", icon: "database-backup", label: "备份与容灾" },
+    { section: "settings", icon: "server-cog", label: "系统设置" },
   ],
 
   secondaryMenus: [
@@ -24,6 +22,7 @@ window.HWS_ARCHIVE_CONFIG = {
       hint: "全局指标、风险、任务和审计入口",
       items: [
         { label: "资产总览", moduleId: "metrics", query: "资产总览" },
+        { label: "全网总控闭环", moduleId: "archiveCommandLoop", query: "全网看板 数据分布 检索 预览 授权 导入导出" },
         { label: "今日新增", moduleId: "metrics", query: "今日新增" },
         { label: "高密级告警", moduleId: "archiveResults", query: "L4 L5 L6" },
         { label: "存储端点", moduleId: "storageStatus", query: "硬盘 云端 NAS 邮箱 状态" },
@@ -80,6 +79,10 @@ window.HWS_ARCHIVE_CONFIG = {
       hint: "搜索框、语音、条件组合和本机索引快搜",
       items: [
         { label: "全域搜索", moduleId: "command", query: "" },
+        { label: "全面搜索", moduleId: "archiveCommandLoop", query: "全面搜索 全网 全域 全库" },
+        { label: "模糊搜索", moduleId: "archiveCommandLoop", query: "模糊搜索 模糊时间段 周期阶段" },
+        { label: "精准搜索", moduleId: "archiveCommandLoop", query: "精准搜索 文件编号 作者 项目" },
+        { label: "积分查询", moduleId: "archiveCommandLoop", query: "积分兑换 付费 查询台账" },
         { label: "语音检索", moduleId: "command", query: "语音" },
         { label: "高级条件", moduleId: "command", query: "高级条件" },
         { label: "本机索引", moduleId: "command", query: "本机索引" },
@@ -156,6 +159,7 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "NAS 总库", moduleId: "intake", query: "NAS" },
         { label: "端点状态", moduleId: "storageStatus", query: "端点 状态 同步 在线 离线" },
         { label: "导入动作审批", moduleId: "intake", query: "复制 删除 镜像 最高授权" },
+        { label: "导入查毒", moduleId: "archiveCommandLoop", query: "导入 杀毒 查毒 隔离 原始文件" },
         { label: "下载外发审批", moduleId: "downloadGovernance", query: "下载 外发 公司邮箱 水印" },
         { label: "杀毒隔离", moduleId: "validation", query: "杀毒 隔离 病毒" },
         { label: "扫描批次", moduleId: "batchHistory", query: "批次" },
@@ -198,12 +202,32 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "密级矩阵", moduleId: "saas", query: "密级矩阵" },
         { label: "复制审批", moduleId: "archiveResults", query: "复制审批" },
         { label: "打开申请", moduleId: "archiveResults", query: "打开申请" },
+        { label: "受控浏览策略", moduleId: "archiveResults", query: "受控浏览 摄像头 人脸识别 鼠标行为 防偷拍" },
+        { label: "双人共阅", moduleId: "archiveCommandLoop", query: "双人一起查看 高级文件 高价值 防拍照" },
+        { label: "付费查询台账", moduleId: "archiveCommandLoop", query: "积分兑换 付费 查询" },
         { label: "禁训区", moduleId: "saas", query: "禁训区" },
         { label: "审计日志", moduleId: "dailyLedger", query: "审计日志 每日台账" },
         { label: "阅读时光胶囊", moduleId: "timeCapsule", query: "阅读 电脑 网络 位置 人脸 指纹" },
         { label: "水印策略", moduleId: "downloadGovernance", query: "水印策略" },
         { label: "敏感数字遮盖", moduleId: "downloadGovernance", query: "敏感数字 遮盖 打格子" },
         { label: "下载日报", moduleId: "dailyLedger", query: "下载 日报 台账" },
+      ],
+    },
+    {
+      section: "settings",
+      title: "系统设置",
+      hint: "Agent、平台接口、备份容灾、加密策略、计费和系统参数集中管理",
+      items: [
+        { label: "设置总览", moduleId: "archiveCommandLoop", query: "系统设置 加密 参数 授权" },
+        { label: "Agent 接入", moduleId: "agentHub", query: "Open cloud agent Hermes agent 自定义 Agent" },
+        { label: "平台接入", moduleId: "saas", query: "平台接口 OA 飞书 钉钉 企微 Webhook API" },
+        { label: "备份容灾", moduleId: "resilience", query: "备份 容灾 热备 克隆机 恢复演练" },
+        { label: "存储端点", moduleId: "storageStatus", query: "NAS 云端 本机 U盘 邮箱 状态" },
+        { label: "加密文件策略", moduleId: "archiveResults", query: "加密文件 红色 高密 L4 L5 L6 核心参数" },
+        { label: "核心参数文件", moduleId: "archiveResults", query: "核心 参数 配置 API 数据库 字段" },
+        { label: "导入查毒规则", moduleId: "validation", query: "导入 杀毒 查毒 隔离" },
+        { label: "导出分级授权", moduleId: "downloadGovernance", query: "导出 下载 分级授权 水印" },
+        { label: "积分与版本", moduleId: "archiveCommandLoop", query: "积分兑换 付费 企业家版 公司版" },
       ],
     },
     {
@@ -259,6 +283,7 @@ window.HWS_ARCHIVE_CONFIG = {
   ],
 
   moduleCatalog: [
+    { id: "archiveCommandLoop", title: "档案全网总控闭环", desc: "全网看板、数据分布、全面/模糊/精准搜索、预览、分级授权、导入导出和积分查询。", defaultSize: "wide" },
     { id: "command", title: "全域智能检索台", desc: "搜索、语音、一级/二级入口、组织项目字段和文件类型筛选。", defaultSize: "large" },
     { id: "libraryBoard", title: "档案库分类看板", desc: "公司、项目、部门、员工、作品、案例、视频、合同等分类统计。", defaultSize: "wide" },
     { id: "contentDirectory", title: "内容检索总目录", desc: "一级、二级、三级、四级目录树和目录关键词检索。", defaultSize: "large" },
@@ -282,18 +307,19 @@ window.HWS_ARCHIVE_CONFIG = {
   ],
 
   menuModuleMap: {
-    dashboard: ["command", "libraryBoard", "contentDirectory", "metrics", "storageStatus", "downloadGovernance", "dailyLedger", "timeCapsule", "layoutWorkbench", "saas", "archiveResults", "finishPipeline"],
+    dashboard: ["archiveCommandLoop", "command", "libraryBoard", "contentDirectory", "metrics", "storageStatus", "downloadGovernance", "dailyLedger", "timeCapsule", "layoutWorkbench", "saas", "archiveResults", "finishPipeline"],
     catalog: ["libraryBoard", "contentDirectory", "command", "archiveResults", "fileTypes"],
     layout: ["layoutWorkbench", "command", "saas"],
     tenant: ["saas", "command", "archiveResults"],
-    search: ["command", "libraryBoard", "contentDirectory", "archiveResults", "downloadGovernance", "fileTypes"],
+    search: ["archiveCommandLoop", "command", "libraryBoard", "contentDirectory", "archiveResults", "downloadGovernance", "fileTypes"],
     keyword: ["command", "archiveResults", "saas"],
     workType: ["fileTypes", "command", "archiveResults"],
     sourceVault: ["sourceVault", "storageStatus", "intake", "resilience", "batchHistory", "validation"],
     inbox: ["sourceVault", "intake", "storageStatus", "batchHistory", "validation", "downloadGovernance", "archiveResults"],
     media: ["archiveResults", "fileTypes", "formulas"],
     finish: ["finishPipeline", "formulas", "validation", "archiveResults"],
-    permission: ["saas", "downloadGovernance", "dailyLedger", "timeCapsule", "archiveResults", "validation"],
+    permission: ["archiveCommandLoop", "saas", "downloadGovernance", "dailyLedger", "timeCapsule", "archiveResults", "validation"],
+    settings: ["archiveCommandLoop", "agentHub", "saas", "resilience", "storageStatus", "downloadGovernance", "dailyLedger", "validation", "batchHistory"],
     integration: ["saas", "agentHub", "storageStatus", "finishPipeline", "batchHistory"],
     agent: ["agentHub", "saas", "resilience", "batchHistory"],
     backup: ["resilience", "storageStatus", "timeCapsule", "finishPipeline", "batchHistory", "validation", "metrics"],
@@ -304,6 +330,46 @@ window.HWS_ARCHIVE_CONFIG = {
     { label: "全文索引", value: "68%", note: "OCR 队列 12,304" },
     { label: "待收尾作品", value: "416", note: "S 级 38，A 级 122" },
     { label: "备份健康", value: "97%", note: "最近快照 05:30" },
+  ],
+
+  archiveCommandFlow: [
+    { step: "01", title: "全网全面看板", desc: "先看全网资产、端点状态、数据分布、风险告警和今日新增。" },
+    { step: "02", title: "数据分布", desc: "按公司、项目、部门、员工、作品、家庭/个人/公司、文件类型和密级分布。" },
+    { step: "03", title: "全面/模糊/精准搜索", desc: "全库搜索、模糊时间段、目录检索、文件编号、作者和复合条件联合搜索。" },
+    { step: "04", title: "结果呈现与自适应预览", desc: "命中结果自动进入右侧预览，按文档、视频、图片、录音和密级适配尺寸。" },
+    { step: "05", title: "分级授权查看下载", desc: "查看、下载、外发、原始文件导出全部按 L0-L6、角色和审批链控制。" },
+    { step: "06", title: "导入导出与查毒", desc: "所有导入先杀毒隔离；所有导出分级授权、水印、敏感数字遮盖和日报留痕。" },
+    { step: "07", title: "积分付费与审计", desc: "所有查询记录积分兑换、付费规则、查询目的、设备/IP/MAC 和每日台账。" },
+  ],
+
+  searchModes: [
+    { name: "全面搜索", icon: "search", scope: "全网、全库、全目录、全来源", rule: "适合先发现资料分布，按积分计入全库查询台账。" },
+    { name: "模糊搜索", icon: "list-filter", scope: "模糊时间段、周期阶段、近似关键词", rule: "支持年份、月份、项目阶段、相似标题和内容关键词。" },
+    { name: "精准搜索", icon: "file-search", scope: "文件编号、作者、项目、公司、格式、密级", rule: "适合审计和复核，命中后直接进入预览和授权判断。" },
+    { name: "联合搜索", icon: "blocks", scope: "时间 + 公司 + 项目 + 作者 + 文件性质", rule: "空格、+、*、# 表示同时满足；-关键词表示扣除该项。" },
+  ],
+
+  authorizationGates: [
+    { title: "导入必须查毒", level: "入口门禁", desc: "所有硬盘、U盘、云盘、邮箱、OA、手机和平板导入先杀毒、隔离、批次登记。" },
+    { title: "查看分级授权", level: "浏览门禁", desc: "普通文件可账号查看；高级文件需要人脸、摄像头、鼠标行为和时光胶囊。" },
+    { title: "双人共同查看", level: "高价值门禁", desc: "高级文件、深度有价值文件、L5/L6 和核心参数文件必须两人同时授权查看。" },
+    { title: "防恶意拍照", level: "阅读门禁", desc: "高密资料开启摄像头在场、强水印、底纹、防偷拍提示和异常行为冻结。" },
+    { title: "下载分级审批", level: "外发门禁", desc: "所有下载至少三人审批；最高权限资料至少两名最高授权人同意。" },
+    { title: "原始文件导入导出", level: "原件门禁", desc: "原始文件导出、导入、镜像回写、删除云端原件均进入最高权限台账。" },
+  ],
+
+  queryBillingRules: [
+    { name: "基础查询", cost: "1 积分/次", scope: "公开或 L0-L1 元数据检索", audit: "记录姓名、账号、时间、关键词和结果数量" },
+    { name: "全面搜索", cost: "3 积分/次", scope: "跨库、跨来源、跨目录全网搜索", audit: "记录查询目的、设备、IP、MAC 和命中分布" },
+    { name: "高密查询", cost: "审批后扣减", scope: "L3-L6、合同、财务、人事、核心参数", audit: "审批链、摄像头状态、双人共阅和水印编号" },
+    { name: "原件调取", cost: "按项目计费", scope: "原始文件导出、批量下载、商业作品调动", audit: "导出目的、接收位置、查毒、水印和日报" },
+  ],
+
+  productEditions: [
+    { name: "企业家版 · 家庭部分", scope: "家庭资产、照片视频、证件、合同、保险、医疗和重要资料", permission: "本人最高权限 + 家庭授权" },
+    { name: "企业家版 · 个人部分", scope: "个人作品、邮件、设备、知识库、投资资料和私人重要文档", permission: "本人授权 + 分级隐私排除" },
+    { name: "企业家版 · 公司部分", scope: "企业家名下公司、项目、财务、人事、合同、制度和商业作品", permission: "公司角色 + 最高授权" },
+    { name: "公司版", scope: "集团、项目公司、部门、员工、项目、作品、合同、财务、人事和档案库", permission: "公司组织架构 + 角色权限 + 审批链" },
   ],
 
   infoTickerCategories: [
@@ -564,6 +630,28 @@ window.HWS_ARCHIVE_CONFIG = {
     { level: "L4 机密", watermark: "强水印 + 隐藏指纹", masking: "敏感数字默认打格子，只展示必要字段", approval: "至少 3 人审批并法务留痕", note: "优先给脱敏副本" },
     { level: "L5 最高授权", watermark: "最高权限强水印", masking: "敏感数字、客户身份、金额和账号默认遮盖", approval: "至少 2 名最高授权人审批", note: "默认不可批量下载" },
     { level: "L6 绝密", watermark: "绝密水印 + 逐页指纹", masking: "默认只给脱敏摘要，原文不得外发", approval: "至少 2 名最高授权人审批并记录原因", note: "必要时只允许在线查看" },
+  ],
+
+  controlledViewingRules: [
+    { level: "L0", name: "外部流通", scope: "可浏览标题、摘要和全文预览", camera: "不要求摄像头", face: "不要求人脸识别", mouse: "记录基础点击", watermark: "轻水印，公众浏览防偷拍提示", viewMode: "全文浏览", previewState: "public" },
+    { level: "L1", name: "普通", scope: "可浏览全文预览", camera: "不要求摄像头", face: "账号登录即可", mouse: "记录打开、停留和复制申请", watermark: "标准账号水印", viewMode: "全文浏览", previewState: "normal" },
+    { level: "L2", name: "内部/普通受控", scope: "可浏览全文，复制和下载需审批", camera: "按部门策略可选", face: "账号 + 部门权限", mouse: "记录翻页、鼠标停留和窗口焦点", watermark: "账号水印 + 时间", viewMode: "受控全文", previewState: "controlled" },
+    { level: "L3", name: "保密/敏感", scope: "默认标题、摘要和带底纹全文", camera: "建议开启摄像头", face: "人脸识别或指纹通过", mouse: "记录鼠标行为和阅读时长", watermark: "受控底纹 + 敏感数字打格子", viewMode: "带底纹浏览", previewState: "restricted" },
+    { level: "L4", name: "机密/加密文档", scope: "仅授权人员可看脱敏全文", camera: "摄像头开启后允许阅读", face: "人脸持续在场", mouse: "记录鼠标、窗口焦点和异常截图行为", watermark: "强水印 + 隐藏指纹 + 局部遮盖", viewMode: "强受控浏览", previewState: "restricted" },
+    { level: "L5", name: "最高机密/最高授权", scope: "默认仅标题和脱敏摘要，全文需双人最高审批", camera: "必须摄像头开启", face: "最高权限人脸复核", mouse: "桌面事件和鼠标行为封存", watermark: "最高权限强水印", viewMode: "标题/摘要优先", previewState: "blocked" },
+    { level: "L6", name: "绝密", scope: "默认不可浏览原文，只显示标题、摘要和审批入口", camera: "必须摄像头开启并持续在场", face: "双人最高授权 + 人脸复核", mouse: "全程事件胶囊封存", watermark: "绝密底纹，原文禁止预览", viewMode: "不可浏览", previewState: "blocked" },
+  ],
+
+  fileMetadataFields: [
+    { label: "文件大小", source: "本机索引、云端清单、NAS 清单或人工登记" },
+    { label: "创建时间", source: "文件系统、云端清单或原始导入批次" },
+    { label: "修改时间", source: "文件系统或来源端最后修改时间" },
+    { label: "修改次数", source: "版本记录、协作文档历史或人工登记" },
+    { label: "修改人", source: "文件作者、协作文档账号、审批台账或人工登记" },
+    { label: "修改电脑", source: "受控终端、NAS 操作站、iPad 最高权限端或待授权采集" },
+    { label: "IP地址", source: "内网审计日志；公网或远程访问需授权留痕" },
+    { label: "MAC地址", source: "设备指纹；演示版只显示脱敏或待授权采集" },
+    { label: "修改坐标", source: "位置标签和坐标；精确定位必须单独授权" },
   ],
 
   sensitiveMaskRules: [
@@ -1049,6 +1137,10 @@ window.HWS_ARCHIVE_CONFIG = {
     { key: "assetStage", label: "完整状态" },
     { key: "qualityLevel", label: "作品等级" },
     { key: "format", label: "格式" },
+    { key: "fileSizeLabel", label: "大小" },
+    { key: "modifiedAt", label: "修改时间" },
+    { key: "revisionCount", label: "修改次数" },
+    { key: "modifiedBy", label: "修改人" },
     { key: "storageSourceType", label: "存储来源" },
     { key: "storageProvider", label: "存储名称" },
     { key: "accessMode", label: "接入方式" },

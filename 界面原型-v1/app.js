@@ -184,6 +184,12 @@
     infoTickerTrack: document.querySelector("#infoTickerTrack"),
     navList: document.querySelector("#navList"),
     menuSearchInput: document.querySelector("#menuSearchInput"),
+    archiveCommandLoopBadge: document.querySelector("#archiveCommandLoopBadge"),
+    archiveCommandFlow: document.querySelector("#archiveCommandFlow"),
+    searchModeGrid: document.querySelector("#searchModeGrid"),
+    authorizationGateGrid: document.querySelector("#authorizationGateGrid"),
+    queryBillingGrid: document.querySelector("#queryBillingGrid"),
+    productEditionGrid: document.querySelector("#productEditionGrid"),
     metricGrid: document.querySelector("#metricGrid"),
     roleSelect: document.querySelector("#roleSelect"),
     activeRoleName: document.querySelector("#activeRoleName"),
@@ -694,6 +700,81 @@
     return clampScore(Math.round(completionScore * 0.48 + qualityScore * 0.42 + reviewBoost), 75);
   }
 
+  function seededNumber(value = "") {
+    return String(value)
+      .split("")
+      .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  }
+
+  function seededPick(options, seedValue) {
+    const seed = seededNumber(seedValue);
+    return options[seed % options.length];
+  }
+
+  function levelNumber(level = "") {
+    return Number(String(level).match(/[0-6]/)?.[0] || 0);
+  }
+
+  function inferFileSizeLabel(item) {
+    if (item.fileSizeLabel || item.sizeLabel) return item.fileSizeLabel || item.sizeLabel;
+    const text = [item.format, item.workType, item.formatTags?.join(" "), item.title].join(" ").toLowerCase();
+    if (/mp4|mov|video|视频|影视/.test(text)) return item.completionScore >= 95 ? "4.8GB" : "680MB";
+    if (/m4a|mp3|wav|audio|录音/.test(text)) return "96MB";
+    if (/ai|psd|image|logo|png|jpg|视觉|图片/.test(text)) return "1.4GB";
+    if (/zip|sql|backup|代码|源码|备份/.test(text)) return "2.6GB";
+    if (/xlsx|csv|excel|表格|财务/.test(text)) return "42MB";
+    if (/eml|msg|mail|邮件/.test(text)) return "74MB";
+    if (/pdf|scan|合同|扫描/.test(text)) return "318MB";
+    if (/ppt|pptx|方案|提案/.test(text)) return "186MB";
+    if (/doc|docx|word|文章/.test(text)) return "18MB";
+    return "待统计";
+  }
+
+  function inferModifiedAt(item, createdAt) {
+    if (item.modifiedAt) return item.modifiedAt;
+    const year = String(item.period || createdAt || "").match(/20\d{2}|19\d{2}/)?.[0] || "2026";
+    const seed = seededNumber(item.id || item.title);
+    const month = String((seed % 12) + 1).padStart(2, "0");
+    const day = String((seed % 25) + 1).padStart(2, "0");
+    const hour = String((seed % 9) + 9).padStart(2, "0");
+    const minute = String((seed % 47) + 10).padStart(2, "0");
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+
+  function inferRevisionCount(item, completionScore) {
+    if (Number.isFinite(Number(item.revisionCount))) return Number(item.revisionCount);
+    if (/经典|归档|品牌资产|投标归档|系统备份/.test([item.status, item.qualityLevel].join(" "))) return 18 + (seededNumber(item.id) % 8);
+    if (completionScore >= 95) return 12 + (seededNumber(item.id) % 6);
+    if (completionScore >= 85) return 7 + (seededNumber(item.id) % 5);
+    return 3 + (seededNumber(item.id) % 4);
+  }
+
+  function inferAuditTrail(item, storageProfile, completionScore) {
+    const seedValue = item.id || item.title;
+    const isLocalScan = Boolean(item.hasLocalPath || item.localId);
+    const devices = ["MacBook-Pro-17", "管理员端", "操作终端机", "iPad 最高权限端", "NAS 资料整理站", "本机受控终端"];
+    const ips = ["192.168.1.42", "192.168.1.88", "10.0.0.25", "192.168.1.61", "172.16.8.12"];
+    const macs = ["8C:85:90:2A:xx:41", "A4:5E:60:11:xx:09", "F0:18:98:76:xx:13", "70:9C:D1:33:xx:65", "34:AB:37:56:xx:20"];
+    const locations = ["总部 8F 档案室", "会议室 A", "法务办公室", "资料操作间", "NAS 机房", "项目现场"];
+    const coordinates = ["22.2793, 114.1628", "22.3027, 114.1772", "22.5431, 114.0579", "31.2304, 121.4737", "待授权定位"];
+
+    return {
+      fileSizeLabel: inferFileSizeLabel(item),
+      modifiedAt: inferModifiedAt(item, item.createdAt),
+      revisionCount: inferRevisionCount(item, completionScore),
+      modifiedBy: item.modifiedBy || item.owner || item.author || "待登记",
+      modifiedDevice: item.modifiedDevice || (isLocalScan ? "本机只读索引终端" : seededPick(devices, seedValue)),
+      modifiedIp: item.modifiedIp || (isLocalScan ? "待授权采集" : seededPick(ips, seedValue)),
+      modifiedMac: item.modifiedMac || (isLocalScan ? "待授权采集" : seededPick(macs, seedValue)),
+      modifiedLocation: item.modifiedLocation || (isLocalScan ? "待授权定位" : seededPick(locations, seedValue)),
+      modifiedCoordinate: item.modifiedCoordinate || (isLocalScan ? "待授权定位" : seededPick(coordinates, seedValue)),
+      metadataCaptureState: isLocalScan
+        ? "已读取大小、创建时间、修改时间；电脑、IP、MAC、坐标需授权后采集"
+        : "演示画像字段；真实接入后按权限读取电脑、IP、MAC 和坐标",
+      modificationTrailLabel: `${storageProfile.storageSourceType} · ${storageProfile.accessMode}`,
+    };
+  }
+
   function securityLevelName(level = "") {
     const map = {
       L0: "L0 外部流通",
@@ -862,6 +943,8 @@
     const repairCandidate = Boolean(item.aiRepairCandidate ?? isAiRepairCandidate(item, completionScore));
     const contentMetrics = inferContentMetrics(item);
     const selfCheckScore = clampScore(item.selfCheckScore ?? inferSelfCheckScore(item, completionScore, qualityScore), 75);
+    const createdAt = item.createdAt || item.modifiedAt || period || "待登记";
+    const auditTrail = inferAuditTrail({ ...item, createdAt }, storageProfile, completionScore);
     return {
       ...item,
       companyType: item.companyType || inferCompanyType(item.company),
@@ -870,7 +953,7 @@
       projectType: item.projectType || inferProjectType(item),
       creatorCompany: item.creatorCompany || item.company,
       creatorDepartment: item.creatorDepartment || item.department,
-      createdAt: item.createdAt || item.modifiedAt || period,
+      createdAt,
       ownerLevel: item.ownerLevel || inferOwnerLevel(item.owner),
       periodSearchText: item.periodSearchText || inferPeriodSearchText(item),
       assetStage: item.assetStage || inferAssetStage(item),
@@ -899,6 +982,7 @@
       crossCheckPolicy: item.crossCheckPolicy || storageProfile.crossCheckPolicy,
       storageRisk: item.storageRisk || storageProfile.storageRisk,
       storageCostLevel: item.storageCostLevel || storageProfile.storageCostLevel,
+      ...auditTrail,
     };
   }
 
@@ -1131,6 +1215,7 @@
       .join("");
 
     renderSecondaryMenus();
+    renderArchiveCommandLoop();
     renderLibraryBoard();
     renderContentDirectory();
     renderSaasConsole();
@@ -1554,6 +1639,84 @@
   function libraryNames(values, limit = 8) {
     const names = uniqueValues(values).slice(0, limit);
     return names.length ? names : ["等待真实数据"];
+  }
+
+  function renderArchiveCommandLoop() {
+    if (!dom.archiveCommandFlow) return;
+    if (dom.archiveCommandLoopBadge) {
+      dom.archiveCommandLoopBadge.textContent = `${archives.length.toLocaleString("zh-CN")} 个文件进入总控`;
+    }
+
+    dom.archiveCommandFlow.innerHTML = (config.archiveCommandFlow || [])
+      .map(
+        (item) => `
+          <article class="command-flow-card">
+            <em>${escapeHtml(item.step)}</em>
+            <strong>${escapeHtml(item.title)}</strong>
+            <span>${escapeHtml(item.desc)}</span>
+          </article>
+        `,
+      )
+      .join("");
+
+    if (dom.searchModeGrid) {
+      dom.searchModeGrid.innerHTML = (config.searchModes || [])
+        .map(
+          (item) => `
+            <button class="search-mode-card" type="button" data-command-loop-query="${escapeHtml(item.name)} ${escapeHtml(item.scope)}">
+              <i data-lucide="${escapeHtml(item.icon || "search")}"></i>
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${escapeHtml(item.scope)}</span>
+              <em>${escapeHtml(item.rule)}</em>
+            </button>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.authorizationGateGrid) {
+      dom.authorizationGateGrid.innerHTML = (config.authorizationGates || [])
+        .map(
+          (item) => `
+            <article class="authorization-gate-card">
+              <span>${escapeHtml(item.level)}</span>
+              <strong>${escapeHtml(item.title)}</strong>
+              <p>${escapeHtml(item.desc)}</p>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.queryBillingGrid) {
+      dom.queryBillingGrid.innerHTML = (config.queryBillingRules || [])
+        .map(
+          (item) => `
+            <article class="query-billing-card">
+              <strong>${escapeHtml(item.name)}</strong>
+              <em>${escapeHtml(item.cost)}</em>
+              <span>${escapeHtml(item.scope)}</span>
+              <small>${escapeHtml(item.audit)}</small>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.productEditionGrid) {
+      dom.productEditionGrid.innerHTML = (config.productEditions || [])
+        .map(
+          (item) => `
+            <article class="product-edition-card">
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${escapeHtml(item.scope)}</span>
+              <em>${escapeHtml(item.permission)}</em>
+            </article>
+          `,
+        )
+        .join("");
+    }
+    refreshIcons();
   }
 
   function renderLibraryBoard() {
@@ -2083,7 +2246,73 @@
     setPreviewRatio(order[(index + 1) % order.length]);
   }
 
+  function securityViewingPolicy(item) {
+    const rule =
+      (config.controlledViewingRules || []).find((entry) => entry.level === item?.level) ||
+      (config.controlledViewingRules || []).find((entry) => entry.level === "L1") ||
+      {};
+    const level = levelNumber(item?.level);
+    return {
+      level,
+      levelName: item?.securityLevelName || securityLevelName(item?.level),
+      name: rule.name || "待定策略",
+      scope: rule.scope || "待设置浏览范围",
+      camera: rule.camera || (level >= 4 ? "需要摄像头开启" : "不要求摄像头"),
+      face: rule.face || (level >= 3 ? "需要人脸识别或指纹" : "账号登录即可"),
+      mouse: rule.mouse || "记录基础访问事件",
+      watermark: rule.watermark || "标准水印",
+      viewMode: rule.viewMode || "受控浏览",
+      previewState: rule.previewState || (level >= 5 ? "blocked" : level >= 3 ? "restricted" : "normal"),
+    };
+  }
+
+  function adaptivePreviewProfile(item) {
+    const policy = securityViewingPolicy(item);
+    const typeClass =
+      {
+        video: "preview-adaptive-wide",
+        image: "preview-adaptive-wide",
+        audio: "preview-adaptive-compact",
+        doc: "preview-adaptive-tall",
+      }[item?.preview] || "preview-adaptive-tall";
+    const typeLabel =
+      {
+        video: "视频代理自适应预览",
+        image: "图片墙自适应预览",
+        audio: "录音波形自适应预览",
+        doc: "文档页自适应预览",
+      }[item?.preview] || "自适应预览";
+    const securityClass =
+      policy.previewState === "blocked"
+        ? "preview-adaptive-blocked"
+        : policy.previewState === "restricted"
+          ? "preview-adaptive-restricted"
+          : "preview-adaptive-open";
+    return {
+      frameClass: `${typeClass} ${securityClass}`,
+      label: policy.previewState === "blocked" ? "标题/摘要自适应预览" : typeLabel,
+      note: `${policy.viewMode} · 搜索命中后自动匹配窗口`,
+    };
+  }
+
+  function previewPolicyOverlay(item) {
+    const policy = securityViewingPolicy(item);
+    const icon = policy.previewState === "blocked" ? "lock" : "shield-check";
+    return `
+      <div class="preview-control-overlay ${escapeHtml(policy.previewState)}">
+        <div>
+          <i data-lucide="${escapeHtml(icon)}"></i>
+          <strong>${escapeHtml(policy.viewMode)}</strong>
+        </div>
+        <span>${escapeHtml(policy.scope)}</span>
+        <small>${escapeHtml(policy.watermark)} · ${escapeHtml(policy.camera)} · ${escapeHtml(policy.face)}</small>
+      </div>
+    `;
+  }
+
   function previewFrameMarkup(item) {
+    const policy = securityViewingPolicy(item);
+    const adaptive = adaptivePreviewProfile(item);
     const mediaLabel = {
       video: "视频/视觉预览",
       audio: "录音波形和转写",
@@ -2093,12 +2322,63 @@
 
     return `
       <div class="video-stage">
-        <button class="play-button" type="button" aria-label="播放预览">
+        <button class="play-button" type="button" aria-label="播放预览" ${policy.previewState === "blocked" ? "disabled" : ""}>
           <i data-lucide="${item?.preview === "doc" ? "file-text" : "play"}"></i>
         </button>
         <div>
           <strong>${escapeHtml(mediaLabel)}</strong>
           <span>${escapeHtml(item?.id || "未选择")} · ${escapeHtml(item?.format || "--")} · ${escapeHtml(item?.status || "--")}</span>
+          <span class="preview-adaptive-note">${escapeHtml(adaptive.label)} · ${escapeHtml(policy.levelName)}</span>
+        </div>
+      </div>
+      ${previewPolicyOverlay(item)}
+    `;
+  }
+
+  function renderSecurityPolicyCard(item) {
+    const policy = securityViewingPolicy(item);
+    const rows = [
+      ["浏览范围", policy.scope],
+      ["浏览方式", policy.viewMode],
+      ["摄像头", policy.camera],
+      ["人脸/指纹", policy.face],
+      ["鼠标行为", policy.mouse],
+      ["水印/底纹", policy.watermark],
+    ];
+    return `
+      <div class="preview-profile-card security-policy-card ${escapeHtml(policy.previewState)}">
+        <div class="profile-card-head">
+          <strong>受控浏览策略</strong>
+          <span>${escapeHtml(policy.levelName)} · 防偷拍</span>
+        </div>
+        <div class="profile-row-grid security-row-grid">
+          ${rows.map(([label, value]) => `<span><b>${escapeHtml(label)}</b><em>${escapeHtml(value)}</em></span>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAuditMetaCard(item) {
+    const rows = [
+      ["文件大小", item.fileSizeLabel],
+      ["创建时间", item.createdAt],
+      ["修改时间", item.modifiedAt],
+      ["修改次数", `${item.revisionCount} 次`],
+      ["修改人", item.modifiedBy],
+      ["修改电脑", item.modifiedDevice],
+      ["IP地址", item.modifiedIp],
+      ["MAC地址", item.modifiedMac],
+      ["位置/坐标", `${item.modifiedLocation} · ${item.modifiedCoordinate}`],
+      ["采集状态", item.metadataCaptureState],
+    ];
+    return `
+      <div class="preview-profile-card audit-meta-card">
+        <div class="profile-card-head">
+          <strong>文件元数据与修改留痕</strong>
+          <span>${escapeHtml(item.modificationTrailLabel)}</span>
+        </div>
+        <div class="profile-row-grid audit-row-grid">
+          ${rows.map(([label, value]) => `<span><b>${escapeHtml(label)}</b><em>${escapeHtml(value)}</em></span>`).join("")}
         </div>
       </div>
     `;
@@ -2106,16 +2386,18 @@
 
   function renderPreviewDock(item = selectedArchive()) {
     if (!dom.previewDockTitle || !item) return;
+    const policy = securityViewingPolicy(item);
+    const adaptive = adaptivePreviewProfile(item);
     dom.previewDockTitle.textContent = item.title;
     dom.previewDockLevel.textContent = item.level;
     dom.previewDockSummary.textContent = item.summary;
-    dom.previewDockFrame.className = `preview-frame ${item.preview}-preview`;
+    dom.previewDockFrame.className = `preview-frame ${item.preview}-preview ${adaptive.frameClass} preview-security-${policy.previewState}`;
     dom.previewDockFrame.innerHTML = previewFrameMarkup(item);
     dom.previewDockMeta.innerHTML = `
       <div class="preview-profile-card">
         <div class="profile-card-head">
           <strong>锁定比例预览</strong>
-          <span>${escapeHtml(item.format)} · ${escapeHtml(item.workType)}</span>
+          <span>${escapeHtml(adaptive.label)} · ${escapeHtml(item.format)} · ${escapeHtml(item.workType)}</span>
         </div>
         <div class="profile-row-grid">
           <span><b>作者</b><em>${escapeHtml(item.author)}</em></span>
@@ -2126,6 +2408,8 @@
           <span><b>胶囊规则</b><em>阅读行为进入时光胶囊</em></span>
         </div>
       </div>
+      ${renderSecurityPolicyCard(item)}
+      ${renderAuditMetaCard(item)}
     `;
     applyPreviewDockState();
   }
@@ -2424,6 +2708,16 @@
       item.purposeText,
       item.contributionMode,
       item.securityLevelName,
+      item.fileSizeLabel,
+      item.revisionCount,
+      item.modifiedBy,
+      item.modifiedDevice,
+      item.modifiedIp,
+      item.modifiedMac,
+      item.modifiedLocation,
+      item.modifiedCoordinate,
+      item.metadataCaptureState,
+      item.modificationTrailLabel,
       item.storageSourceType,
       item.storageProvider,
       item.accessMode,
@@ -2441,6 +2735,7 @@
       item.sourcePathLabel,
       item.sizeLabel,
       item.modifiedAt,
+      "受控浏览 摄像头 人脸识别 鼠标行为 防偷拍 底纹 不可浏览 IP地址 MAC地址 修改电脑 修改坐标",
       item.status,
       item.summary,
     ]
@@ -2530,6 +2825,15 @@
       item.status,
       item.sizeLabel,
       item.modifiedAt,
+      item.fileSizeLabel,
+      item.revisionCount,
+      item.modifiedBy,
+      item.modifiedDevice,
+      item.modifiedIp,
+      item.modifiedMac,
+      item.modifiedLocation,
+      item.modifiedCoordinate,
+      item.metadataCaptureState,
     ]
       .join(" ")
       .toLowerCase();
@@ -2569,6 +2873,32 @@
     return "video";
   }
 
+  function isEncryptedImportantFile(item) {
+    const text = [
+      item.level,
+      item.securityLevelName,
+      item.title,
+      item.subtitle,
+      item.status,
+      item.summary,
+      item.workType,
+      item.format,
+      item.functionRole,
+      item.relativePath,
+      item.sourcePathLabel,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return (
+      levelNumber(item.level) >= 4 ||
+      /核心|参数|配置|api|密钥|数据库|字段|源码|系统备份|财务敏感|客户隐私|合同|加密|机密|绝密/.test(text)
+    );
+  }
+
+  function importantFileClass(item) {
+    return isEncryptedImportantFile(item) ? "encrypted-important-file" : "";
+  }
+
   function scoreMini(label, value, grade) {
     return `
       <span class="mini-score ${escapeHtml(grade)}">
@@ -2579,18 +2909,24 @@
   }
 
   function renderArchiveTitleCard(item) {
+    const important = isEncryptedImportantFile(item);
     return `
-      <div class="title-cell archive-identity-card">
+      <div class="title-cell archive-identity-card ${important ? "encrypted-important-card" : ""}">
         <div class="identity-title-row">
           <strong>${escapeHtml(item.title)}</strong>
           <span>${escapeHtml(item.format)}</span>
         </div>
+        ${important ? `<em class="risk-file-badge">红色 · 需加密/受控</em>` : ""}
         <small>${escapeHtml(item.subtitle)}</small>
         <p>${escapeHtml(item.contentIntro)}</p>
         <div class="identity-meta-grid">
           <span>作者：${escapeHtml(item.author)}</span>
           <span>创作：${escapeHtml(item.creationTool)}</span>
           <span>时间：${escapeHtml(item.createdAt || item.period)}</span>
+          <span>大小：${escapeHtml(item.fileSizeLabel)}</span>
+          <span>修改：${escapeHtml(item.modifiedAt)}</span>
+          <span>修改人：${escapeHtml(item.modifiedBy)}</span>
+          <span>修改次数：${escapeHtml(item.revisionCount)} 次</span>
           <span>体量：${escapeHtml(item.wordCountText)}</span>
           <span>节点：${escapeHtml(item.nodeText)}</span>
           <span>用途：${escapeHtml(item.purposeText)}</span>
@@ -2645,7 +2981,7 @@
     }
 
     if (column.key === "level") {
-      return `<td><span class="tag ${escapeHtml(item.level)}">${escapeHtml(item.level)}</span></td>`;
+      return `<td><span class="tag ${escapeHtml(item.level)} ${importantFileClass(item)}">${escapeHtml(item.level)}</span></td>`;
     }
 
     return `<td>${escapeHtml(item[column.key])}</td>`;
@@ -2674,7 +3010,7 @@
     results.forEach((item) => {
       const row = document.createElement("tr");
       row.dataset.id = item.id;
-      row.className = item.id === state.selectedId ? "selected" : "";
+      row.className = [item.id === state.selectedId ? "selected" : "", importantFileClass(item)].filter(Boolean).join(" ");
       row.innerHTML = config.tableColumns.map((column) => renderCell(item, column)).join("");
       row.addEventListener("click", () => {
         state.selectedId = item.id;
@@ -2711,17 +3047,12 @@
   }
 
   function renderPreview(item) {
+    const policy = securityViewingPolicy(item);
+    const adaptive = adaptivePreviewProfile(item);
     dom.previewTitle.textContent = item.title;
     dom.previewLevel.textContent = item.level;
     dom.previewSummary.textContent = item.summary;
-    dom.previewFrame.className = `preview-frame ${item.preview}-preview`;
-
-    const mediaLabel = {
-      video: "视频/视觉预览",
-      audio: "录音波形和转写",
-      doc: "文档 PDF 预览",
-      image: "图片墙预览",
-    }[item.preview];
+    dom.previewFrame.className = `preview-frame ${item.preview}-preview ${adaptive.frameClass} preview-security-${policy.previewState}`;
 
     dom.previewFrame.innerHTML = previewFrameMarkup(item);
 
@@ -2730,6 +3061,10 @@
       ["简介", item.contentIntro],
       ["创作工具", item.creationTool],
       ["创作时间", item.createdAt || item.period],
+      ["文件大小", item.fileSizeLabel],
+      ["修改时间", item.modifiedAt],
+      ["修改次数", `${item.revisionCount} 次`],
+      ["修改人", item.modifiedBy],
       ["体量", item.wordCountText],
       ["结构", item.structureText],
       ["节点", item.nodeText],
@@ -2760,6 +3095,21 @@
       `自评/自检评分：${item.selfCheckScore}`,
       `AI 修复候选：${item.aiRepairLabel}`,
       `格式：${item.format}`,
+      `自适应预览：${adaptive.label}`,
+      `受控浏览：${policy.viewMode}`,
+      `浏览边界：${policy.scope}`,
+      `摄像头：${policy.camera}`,
+      `人脸识别：${policy.face}`,
+      `鼠标行为：${policy.mouse}`,
+      `防偷拍/水印：${policy.watermark}`,
+      `文件大小：${item.fileSizeLabel}`,
+      `修改时间：${item.modifiedAt}`,
+      `修改次数：${item.revisionCount} 次`,
+      `修改人：${item.modifiedBy}`,
+      `修改电脑：${item.modifiedDevice}`,
+      `IP地址：${item.modifiedIp}`,
+      `MAC地址：${item.modifiedMac}`,
+      `修改坐标：${item.modifiedLocation} · ${item.modifiedCoordinate}`,
       `存储来源：${item.storageSourceType}`,
       `存储名称：${item.storageProvider}`,
       `接入方式：${item.accessMode}`,
@@ -2792,13 +3142,15 @@
           ${scoreMini("自检", item.selfCheckScore, item.selfCheckGrade)}
         </div>
       </div>
+      ${renderSecurityPolicyCard(item)}
+      ${renderAuditMetaCard(item)}
       <div class="preview-chip-row">
         ${metaItems.map((text) => `<span class="meta-chip">${escapeHtml(text)}</span>`).join("")}
       </div>
     `;
 
     const playButton = dom.previewFrame.querySelector(".play-button");
-    playButton.addEventListener("click", () => {
+    if (playButton && !playButton.disabled) playButton.addEventListener("click", () => {
       const icon = playButton.querySelector("i");
       playButton.setAttribute("aria-label", "预览中");
       playButton.classList.add("is-playing");
@@ -3451,6 +3803,14 @@
 
     dom.sectionSearchInput?.addEventListener("input", renderSecondaryMenus);
     dom.contentDirectorySearchInput?.addEventListener("input", renderContentDirectory);
+
+    dom.searchModeGrid?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-command-loop-query]");
+      if (!button) return;
+      dom.searchInput.value = button.dataset.commandLoopQuery || "";
+      renderResults();
+      scrollToModule("archiveResults");
+    });
 
     dom.libraryBoardGrid?.addEventListener("click", (event) => {
       const button = event.target.closest("[data-library-query]");
