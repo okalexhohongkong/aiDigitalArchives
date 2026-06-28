@@ -235,6 +235,10 @@
     timeCapsuleEventBody: document.querySelector("#timeCapsuleEventBody"),
     libraryBoardCount: document.querySelector("#libraryBoardCount"),
     libraryBoardGrid: document.querySelector("#libraryBoardGrid"),
+    orgChartStatus: document.querySelector("#orgChartStatus"),
+    orgChartSearchInput: document.querySelector("#orgChartSearchInput"),
+    companyOrgGrid: document.querySelector("#companyOrgGrid"),
+    historicalOrgImportGrid: document.querySelector("#historicalOrgImportGrid"),
     contentDirectorySearchInput: document.querySelector("#contentDirectorySearchInput"),
     contentDirectoryGrid: document.querySelector("#contentDirectoryGrid"),
     resiliencePlanGrid: document.querySelector("#resiliencePlanGrid"),
@@ -1217,6 +1221,7 @@
     renderSecondaryMenus();
     renderArchiveCommandLoop();
     renderLibraryBoard();
+    renderCompanyOrgChart();
     renderContentDirectory();
     renderSaasConsole();
     renderFileTypeLibrary();
@@ -1755,6 +1760,105 @@
         `,
       )
       .join("");
+  }
+
+  function orgDocumentStats(node) {
+    const keywords = normalizeQuery([node.company, node.department, node.keywords, node.roles].join(" "))
+      .split(/\s+/)
+      .filter((item) => item.length >= 2);
+    const docs = archives.filter((item) => {
+      const haystack = archiveText(item);
+      return (
+        item.company === node.company ||
+        item.department === node.department ||
+        keywords.some((keyword) => haystack.includes(keyword))
+      );
+    });
+    const highLevel = docs.filter((item) => levelNumber(item.level) >= 4).length;
+    const formats = uniqueValues(docs.flatMap((item) => [item.workType, item.format])).slice(0, 4);
+    return {
+      total: docs.length,
+      highLevel,
+      formats: formats.length ? formats : ["等待导入文档"],
+    };
+  }
+
+  function orgDocumentQuery(node) {
+    const candidates = uniqueValues(
+      [
+        node.department,
+        ...normalizeQuery(node.keywords || "")
+          .split(/\s+/)
+          .filter((item) => item.length >= 2),
+        node.company,
+      ].filter(Boolean),
+    );
+    const match = candidates.find((candidate) => {
+      const normalized = normalizeQuery(candidate);
+      return archives.some((item) => archiveText(item).includes(normalized));
+    });
+    return match || node.department || node.company || "";
+  }
+
+  function renderCompanyOrgChart() {
+    if (!dom.companyOrgGrid) return;
+    const term = normalizeQuery(dom.orgChartSearchInput?.value || "");
+    const terms = term.split(/\s+/).filter(Boolean);
+    const nodes = (config.companyOrgStructures || []).filter((node) => {
+      if (!terms.length) return true;
+      const haystack = [node.company, node.department, node.parent, node.leader, node.roles, node.keywords].join(" ").toLowerCase();
+      return terms.every((item) => haystack.includes(item));
+    });
+    const totalDocs = nodes.reduce((sum, node) => sum + orgDocumentStats(node).total, 0);
+    if (dom.orgChartStatus) {
+      dom.orgChartStatus.textContent = `${nodes.length} 个组织节点 · 命中文档 ${totalDocs.toLocaleString("zh-CN")} 个`;
+    }
+
+    dom.companyOrgGrid.innerHTML = nodes.length
+      ? nodes
+          .map((node) => {
+            const stats = orgDocumentStats(node);
+            const query = orgDocumentQuery(node);
+            return `
+              <article class="org-node-card">
+                <div class="org-node-head">
+                  <span><i data-lucide="building-2"></i></span>
+                  <div>
+                    <strong>${escapeHtml(node.department)}</strong>
+                    <em>${escapeHtml(node.company)} · ${escapeHtml(node.parent)}</em>
+                  </div>
+                </div>
+                <p>${escapeHtml(node.roles)}</p>
+                <div class="org-node-meta">
+                  <span>负责人：${escapeHtml(node.leader)}</span>
+                  <span>文档：${escapeHtml(stats.total)} 个</span>
+                  <span>高密：${escapeHtml(stats.highLevel)} 个</span>
+                </div>
+                <div class="org-node-tags">
+                  ${stats.formats.map((format) => `<em>${escapeHtml(format)}</em>`).join("")}
+                </div>
+                <button type="button" data-org-query="${escapeHtml(query)}">查这个部门文档</button>
+              </article>
+            `;
+          })
+          .join("")
+      : `<div class="empty-state">没有匹配的组织架构节点</div>`;
+
+    if (dom.historicalOrgImportGrid) {
+      dom.historicalOrgImportGrid.innerHTML = (config.historicalOrgChartImports || [])
+        .map(
+          (item) => `
+            <article class="historical-org-card">
+              <strong>${escapeHtml(item.year)} · ${escapeHtml(item.version)}</strong>
+              <span>${escapeHtml(item.provider)} · ${escapeHtml(item.format)}</span>
+              <em>${escapeHtml(item.status)}</em>
+              <p>${escapeHtml(item.rule)}</p>
+            </article>
+          `,
+        )
+        .join("");
+    }
+    refreshIcons();
   }
 
   function directoryItemText(item) {
@@ -3803,11 +3907,20 @@
 
     dom.sectionSearchInput?.addEventListener("input", renderSecondaryMenus);
     dom.contentDirectorySearchInput?.addEventListener("input", renderContentDirectory);
+    dom.orgChartSearchInput?.addEventListener("input", renderCompanyOrgChart);
 
     dom.searchModeGrid?.addEventListener("click", (event) => {
       const button = event.target.closest("[data-command-loop-query]");
       if (!button) return;
       dom.searchInput.value = button.dataset.commandLoopQuery || "";
+      renderResults();
+      scrollToModule("archiveResults");
+    });
+
+    dom.companyOrgGrid?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-org-query]");
+      if (!button) return;
+      dom.searchInput.value = button.dataset.orgQuery || "";
       renderResults();
       scrollToModule("archiveResults");
     });

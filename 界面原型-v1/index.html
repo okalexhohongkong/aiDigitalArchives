@@ -316,6 +316,34 @@
 
         <section id="metricGrid" class="metric-grid managed-module" data-module-id="metrics" data-module-title="资产指标总览" aria-label="资产概览"></section>
 
+        <section class="workspace-panel company-org-panel managed-module" data-module-id="companyOrgChart" data-module-title="公司的组织架构" aria-label="公司的组织架构">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">公司的组织架构</p>
+              <h2>按公司组织架构、部门、岗位和负责人快速查询各部门文档</h2>
+            </div>
+            <label class="format-search">
+              <span>组织架构检索</span>
+              <input id="orgChartSearchInput" type="search" placeholder="如：策划部、财务部、人事部、法务、营销" />
+            </label>
+          </div>
+          <div class="org-chart-summary">
+            <span id="orgChartStatus">等待统计</span>
+            <small>点击部门节点可直接进入对应部门文档结果</small>
+          </div>
+          <div id="companyOrgGrid" class="company-org-grid"></div>
+          <div class="historical-org-import">
+            <div class="section-mini-head">
+              <div>
+                <p class="eyebrow">历史组织架构图导入</p>
+                <h3>人事部门提供历史组织架构图后，可以按年份和版本导入归档</h3>
+              </div>
+              <span>HR 导入入口</span>
+            </div>
+            <div id="historicalOrgImportGrid" class="historical-org-import-grid"></div>
+          </div>
+        </section>
+
         <section class="workspace-panel layout-workbench managed-module" data-module-id="layoutWorkbench" data-module-title="菜单模块编排台" aria-label="菜单模块编排">
           <div class="panel-heading">
             <div>

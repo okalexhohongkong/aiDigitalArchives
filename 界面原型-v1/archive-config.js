@@ -65,8 +65,11 @@ window.HWS_ARCHIVE_CONFIG = {
       hint: "集团、项目公司、部门、人员和岗位关系",
       items: [
         { label: "集团公司", moduleId: "saas", query: "集团公司" },
+        { label: "公司的组织架构", moduleId: "companyOrgChart", query: "公司的组织架构 部门 文档" },
         { label: "项目公司", moduleId: "saas", query: "项目公司" },
         { label: "部门建制", moduleId: "saas", query: "部门" },
+        { label: "按部门查文档", moduleId: "companyOrgChart", query: "部门 文档 组织架构" },
+        { label: "历史架构导入", moduleId: "companyOrgChart", query: "历史组织架构图 人事部门 导入" },
         { label: "员工档案", moduleId: "archiveResults", query: "员工 作者" },
         { label: "岗位职能", moduleId: "archiveResults", query: "职能 岗位" },
         { label: "负责人等级", moduleId: "archiveResults", query: "负责人等级" },
@@ -288,6 +291,7 @@ window.HWS_ARCHIVE_CONFIG = {
     { id: "libraryBoard", title: "档案库分类看板", desc: "公司、项目、部门、员工、作品、案例、视频、合同等分类统计。", defaultSize: "wide" },
     { id: "contentDirectory", title: "内容检索总目录", desc: "一级、二级、三级、四级目录树和目录关键词检索。", defaultSize: "large" },
     { id: "metrics", title: "资产指标总览", desc: "文件数量、索引进度、待收尾作品和备份健康。", defaultSize: "wide" },
+    { id: "companyOrgChart", title: "公司的组织架构", desc: "按公司、部门、岗位、负责人和历史组织架构图快速查询部门文档。", defaultSize: "wide" },
     { id: "layoutWorkbench", title: "菜单模块编排台", desc: "一级菜单排序、二级材料归属、页面模块顺序、尺寸和锁定。", defaultSize: "wide" },
     { id: "saas", title: "组织架构与权限底座", desc: "公司、项目、部门、个人、作品、模块中心、角色视角和密级权限矩阵。", defaultSize: "large" },
     { id: "fileTypes", title: "电子文件类型库", desc: "照片、声音、视频、邮件、Office、PDF、工程、数据库和备份格式。", defaultSize: "wide" },
@@ -310,7 +314,7 @@ window.HWS_ARCHIVE_CONFIG = {
     dashboard: ["archiveCommandLoop", "command", "libraryBoard", "contentDirectory", "metrics", "storageStatus", "downloadGovernance", "dailyLedger", "timeCapsule", "layoutWorkbench", "saas", "archiveResults", "finishPipeline"],
     catalog: ["libraryBoard", "contentDirectory", "command", "archiveResults", "fileTypes"],
     layout: ["layoutWorkbench", "command", "saas"],
-    tenant: ["saas", "command", "archiveResults"],
+    tenant: ["companyOrgChart", "saas", "command", "archiveResults"],
     search: ["archiveCommandLoop", "command", "libraryBoard", "contentDirectory", "archiveResults", "downloadGovernance", "fileTypes"],
     keyword: ["command", "archiveResults", "saas"],
     workType: ["fileTypes", "command", "archiveResults"],
@@ -330,6 +334,26 @@ window.HWS_ARCHIVE_CONFIG = {
     { label: "全文索引", value: "68%", note: "OCR 队列 12,304" },
     { label: "待收尾作品", value: "416", note: "S 级 38，A 级 122" },
     { label: "备份健康", value: "97%", note: "最近快照 05:30" },
+  ],
+
+  companyOrgStructures: [
+    { company: "集团公司", department: "董事会/总裁办", parent: "集团总部", leader: "最高授权人", roles: "战略、审批、最高权限、容灾会签", keywords: "最高授权 总裁办 审批 容灾" },
+    { company: "集团公司", department: "人事行政中心", parent: "集团总部", leader: "人事负责人", roles: "组织架构、员工档案、入离职、历史架构图", keywords: "人事 员工 组织架构 历史架构" },
+    { company: "集团公司", department: "财务中心", parent: "集团总部", leader: "财务负责人", roles: "年度报表、经营数据、预算、付款凭证", keywords: "财务 报表 预算 经营数据" },
+    { company: "集团公司", department: "法务中心", parent: "集团总部", leader: "法务负责人", roles: "合同、协议、审批链、受控下载", keywords: "法务 合同 协议 审批" },
+    { company: "广告公司", department: "策划部", parent: "广告公司", leader: "策划总监", roles: "方案、发布会、客户提案、PPT", keywords: "策划 方案 发布会 PPT 提案" },
+    { company: "广告公司", department: "设计部", parent: "广告公司", leader: "设计总监", roles: "LOGO、VI、画册、设计源文件", keywords: "设计 LOGO VI PSD AI" },
+    { company: "传媒公司", department: "视频部", parent: "传媒公司", leader: "视频负责人", roles: "视频、剪辑、脚本、字幕、转写", keywords: "视频 剪辑 脚本 字幕" },
+    { company: "公关公司", department: "媒介部", parent: "公关公司", leader: "媒介负责人", roles: "邮件、媒体名单、客户沟通、报价确认", keywords: "媒介 邮件 客户 报价" },
+    { company: "科技公司", department: "技术部", parent: "科技公司", leader: "技术负责人", roles: "源码、数据库、部署说明、系统备份", keywords: "技术 源码 数据库 部署 备份" },
+    { company: "贸易公司", department: "采购部", parent: "贸易公司", leader: "采购负责人", roles: "供应商、采购合同、报价附件、盖章页", keywords: "采购 供应商 合同 报价" },
+  ],
+
+  historicalOrgChartImports: [
+    { year: "2026", version: "现行组织架构", provider: "人事行政中心", format: "Excel/PDF/图片", status: "可导入", rule: "导入后按公司、部门、岗位、负责人同步到组织架构检索。" },
+    { year: "2023-2025", version: "项目公司调整记录", provider: "人事行政中心 + 总裁办", format: "Excel/审批流", status: "待收集", rule: "保留部门合并、拆分、负责人变更和生效日期。" },
+    { year: "2016-2022", version: "历史部门建制图", provider: "历史人事档案", format: "扫描件/OCR", status: "需 OCR", rule: "扫描后先 OCR，再人工校对部门名称和岗位层级。" },
+    { year: "离职交接", version: "人员归属快照", provider: "人事部门", format: "员工名册/交接表", status: "受控导入", rule: "用于按历史部门查询离职人员创建或负责的文档。" },
   ],
 
   archiveCommandFlow: [
