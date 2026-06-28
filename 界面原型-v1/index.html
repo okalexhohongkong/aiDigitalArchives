@@ -57,6 +57,17 @@
       </aside>
 
       <main class="main">
+        <section id="infoTickerBar" class="info-ticker" aria-label="动态资讯字幕">
+          <div class="ticker-label">
+            <i data-lucide="messages-square"></i>
+            <span>动态资讯</span>
+          </div>
+          <div id="infoTickerFilters" class="ticker-filters" role="group" aria-label="资讯分类"></div>
+          <div class="ticker-viewport" aria-live="polite">
+            <div id="infoTickerTrack" class="ticker-track"></div>
+          </div>
+        </section>
+
         <header class="topbar">
           <div>
             <p class="eyebrow">公司 26 年数字资产驾驶舱</p>
@@ -371,6 +382,70 @@
               <h2>先入 NAS 暂存区，再分类、去重、索引和 AI 候选</h2>
             </div>
             <div id="intakeWorkflow" class="intake-workflow"></div>
+          </div>
+        </section>
+
+        <section class="workspace-panel storage-status-panel managed-module" data-module-id="storageStatus" data-module-title="存储端点状态看板" aria-label="存储端点状态看板">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">存储端点状态</p>
+              <h2>本机、NAS、云端、邮箱、手机、iPad、U盘和素材卡统一显示健康、同步和风险</h2>
+            </div>
+            <span id="storageStatusBadge" class="nas-target">等待端点</span>
+          </div>
+          <div id="storageStatusGrid" class="storage-status-grid"></div>
+        </section>
+
+        <section class="workspace-panel download-governance-panel managed-module" data-module-id="downloadGovernance" data-module-title="受控下载与外发治理" aria-label="受控下载与外发治理">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">下载外发总控</p>
+              <h2>本地下载、公司工作邮箱外发、水印、敏感数字打格子和多人审批统一管控</h2>
+            </div>
+            <span class="nas-target danger">所有下载必须审批留痕</span>
+          </div>
+          <div id="downloadDestinationGrid" class="download-destination-grid"></div>
+          <div class="download-policy-wrap">
+            <div>
+              <p class="eyebrow">密级保护规则</p>
+              <h2>不同密级自动匹配水印强度、遮盖策略和审批人数</h2>
+            </div>
+            <div id="downloadProtectionGrid" class="download-protection-grid"></div>
+          </div>
+          <div class="download-policy-wrap">
+            <div>
+              <p class="eyebrow">敏感数字遮盖</p>
+              <h2>手机号、邮箱、身份证、金额、银行卡和客户身份按权限遮盖</h2>
+            </div>
+            <div id="sensitiveMaskGrid" class="sensitive-mask-grid"></div>
+          </div>
+        </section>
+
+        <section class="workspace-panel daily-ledger-panel managed-module" data-module-id="dailyLedger" data-module-title="每日台账与行为日报" aria-label="每日台账与行为日报">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">每日台账 / 行为日报</p>
+              <h2>谁查询、谁申请、谁审批、谁下载、谁修改、谁优化、谁访问都进入日报</h2>
+            </div>
+            <span id="dailyLedgerBadge" class="nas-target">今日日报</span>
+          </div>
+          <div id="dailyLedgerSummary" class="daily-ledger-summary"></div>
+          <div class="ledger-table-wrap">
+            <table class="ledger-table">
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>人员/账号</th>
+                  <th>身份校验</th>
+                  <th>设备/IP/MAC</th>
+                  <th>动作</th>
+                  <th>对象/去向</th>
+                  <th>审批人</th>
+                  <th>结果</th>
+                </tr>
+              </thead>
+              <tbody id="dailyLedgerBody"></tbody>
+            </table>
           </div>
         </section>
 

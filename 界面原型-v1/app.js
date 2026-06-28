@@ -155,6 +155,7 @@
   const state = {
     activeFilter: "all",
     activeWorkType: "all",
+    activeTickerCategory: "all",
     activeSection: config.navItems?.find((item) => item.active)?.section || config.navItems?.[0]?.section || "dashboard",
     activeRole: config.roles?.[0]?.key || "owner",
     enabledModules: Object.fromEntries((config.modules || []).map((item) => [item.key, item.enabled !== false])),
@@ -172,6 +173,8 @@
   const dom = {
     appShell: document.querySelector("#appShell"),
     sidebar: document.querySelector(".sidebar"),
+    infoTickerFilters: document.querySelector("#infoTickerFilters"),
+    infoTickerTrack: document.querySelector("#infoTickerTrack"),
     navList: document.querySelector("#navList"),
     menuSearchInput: document.querySelector("#menuSearchInput"),
     metricGrid: document.querySelector("#metricGrid"),
@@ -201,6 +204,14 @@
     intakeWorkflow: document.querySelector("#intakeWorkflow"),
     importActionPolicyGrid: document.querySelector("#importActionPolicyGrid"),
     terminalPortGrid: document.querySelector("#terminalPortGrid"),
+    storageStatusBadge: document.querySelector("#storageStatusBadge"),
+    storageStatusGrid: document.querySelector("#storageStatusGrid"),
+    downloadDestinationGrid: document.querySelector("#downloadDestinationGrid"),
+    downloadProtectionGrid: document.querySelector("#downloadProtectionGrid"),
+    sensitiveMaskGrid: document.querySelector("#sensitiveMaskGrid"),
+    dailyLedgerBadge: document.querySelector("#dailyLedgerBadge"),
+    dailyLedgerSummary: document.querySelector("#dailyLedgerSummary"),
+    dailyLedgerBody: document.querySelector("#dailyLedgerBody"),
     libraryBoardCount: document.querySelector("#libraryBoardCount"),
     libraryBoardGrid: document.querySelector("#libraryBoardGrid"),
     contentDirectorySearchInput: document.querySelector("#contentDirectorySearchInput"),
@@ -980,6 +991,42 @@
     };
   }
 
+  function tickerItemsForCategory(category = state.activeTickerCategory) {
+    const items = config.infoTickerItems || [];
+    if (category === "all") return items;
+    return items.filter((item) => item.category === category);
+  }
+
+  function renderInfoTicker() {
+    if (!dom.infoTickerTrack || !dom.infoTickerFilters) return;
+    const categories = config.infoTickerCategories || [];
+    const items = tickerItemsForCategory();
+    const safeItems = items.length ? items : config.infoTickerItems || [];
+    const tickerMarkup = safeItems
+      .map(
+        (item) => `
+          <span class="ticker-item" data-ticker-category="${escapeHtml(item.category)}">
+            <b>${escapeHtml(item.source)}</b>
+            <em>${escapeHtml(item.time)}</em>
+            <strong>${escapeHtml(item.title)}</strong>
+          </span>
+        `,
+      )
+      .join("");
+
+    dom.infoTickerFilters.innerHTML = categories
+      .map(
+        (category) => `
+          <button class="${category.key === state.activeTickerCategory ? "active" : ""}" type="button" data-ticker-filter="${escapeHtml(category.key)}">
+            ${escapeHtml(category.label)}
+          </button>
+        `,
+      )
+      .join("");
+
+    dom.infoTickerTrack.innerHTML = tickerMarkup + tickerMarkup;
+  }
+
   function renderConfigDrivenSections() {
     if (dom.roleSelect) {
       dom.roleSelect.innerHTML = (config.roles || [])
@@ -989,6 +1036,7 @@
     }
 
     renderNavList();
+    renderInfoTicker();
 
     const metrics = usingLocalIndex
       ? [
@@ -1063,6 +1111,9 @@
     renderFormulaExamples();
     renderResiliencePlans();
     renderAgentConnectors();
+    renderStorageStatus();
+    renderDownloadGovernance();
+    renderDailyLedger();
 
     dom.intakeSourceGrid.innerHTML = config.intakeSources
       .map(
@@ -1612,6 +1663,176 @@
       )
       .join("");
     refreshIcons();
+  }
+
+  function percentNumber(value) {
+    const match = String(value || "").match(/\d+(?:\.\d+)?/);
+    return match ? Math.max(0, Math.min(100, Number(match[0]))) : 0;
+  }
+
+  function storageSizeToTb(value) {
+    const text = String(value || "");
+    const match = text.match(/\d+(?:\.\d+)?/);
+    if (!match) return 0;
+    const size = Number(match[0]);
+    if (/G/i.test(text)) return size / 1024;
+    if (/M/i.test(text)) return size / 1024 / 1024;
+    return size;
+  }
+
+  function storageUsedPercent(used, capacity) {
+    const usedTb = storageSizeToTb(used);
+    const capacityTb = storageSizeToTb(capacity);
+    if (!usedTb || !capacityTb) return percentNumber(used);
+    return Math.max(0, Math.min(100, (usedTb / capacityTb) * 100));
+  }
+
+  function statusClass(value) {
+    if (/隔离|异常|高|阻塞|暂停/.test(value)) return "danger";
+    if (/待|复核|授权|检查|中/.test(value)) return "warning";
+    return "ok";
+  }
+
+  function renderStorageStatus() {
+    if (!dom.storageStatusGrid) return;
+    const endpoints = config.storageEndpoints || [];
+    if (dom.storageStatusBadge) {
+      const onlineCount = endpoints.filter((item) => /在线|主库|核心/.test(item.status)).length;
+      dom.storageStatusBadge.textContent = `${onlineCount}/${endpoints.length} 在线或可用`;
+    }
+    dom.storageStatusGrid.innerHTML = endpoints
+      .map((endpoint) => {
+        const health = percentNumber(endpoint.health);
+        const used = storageUsedPercent(endpoint.used, endpoint.capacity);
+        return `
+          <article class="storage-status-card ${statusClass(`${endpoint.status} ${endpoint.risk}`)}">
+            <div class="storage-card-head">
+              <span><i data-lucide="${escapeHtml(endpoint.icon || "hard-drive")}"></i></span>
+              <div>
+                <p class="eyebrow">${escapeHtml(endpoint.type)}</p>
+                <h3>${escapeHtml(endpoint.name)}</h3>
+              </div>
+              <em>${escapeHtml(endpoint.status)}</em>
+            </div>
+            <div class="storage-meter-row">
+              <div>
+                <span>容量</span>
+                <strong>${escapeHtml(endpoint.used)} / ${escapeHtml(endpoint.capacity)}</strong>
+                <i><b style="width:${used}%"></b></i>
+              </div>
+              <div>
+                <span>健康</span>
+                <strong>${escapeHtml(endpoint.health)}</strong>
+                <i><b style="width:${health}%"></b></i>
+              </div>
+            </div>
+            <p>${escapeHtml(endpoint.sync)}</p>
+            <div class="storage-status-foot">
+              <span>风险：${escapeHtml(endpoint.risk)}</span>
+              <span>${escapeHtml(endpoint.next)}</span>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+    refreshIcons();
+  }
+
+  function renderDownloadGovernance() {
+    if (!dom.downloadDestinationGrid) return;
+    dom.downloadDestinationGrid.innerHTML = (config.downloadDestinations || [])
+      .map(
+        (item) => `
+          <article class="download-destination-card ${statusClass(item.status)}">
+            <div class="download-card-head">
+              <span><i data-lucide="${escapeHtml(item.icon || "shield-check")}"></i></span>
+              <em>${escapeHtml(item.status)}</em>
+            </div>
+            <h3>${escapeHtml(item.name)}</h3>
+            <p>${escapeHtml(item.scope)}</p>
+            <div class="download-rule-list">
+              <span>${escapeHtml(item.approval)}</span>
+              <span>${escapeHtml(item.watermark)}</span>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+
+    if (dom.downloadProtectionGrid) {
+      dom.downloadProtectionGrid.innerHTML = (config.downloadProtectionRules || [])
+        .map(
+          (rule) => `
+            <article class="download-protection-card">
+              <strong>${escapeHtml(rule.level)}</strong>
+              <span>${escapeHtml(rule.watermark)}</span>
+              <span>${escapeHtml(rule.masking)}</span>
+              <em>${escapeHtml(rule.approval)}</em>
+              <i>${escapeHtml(rule.note)}</i>
+            </article>
+          `,
+        )
+        .join("");
+    }
+
+    if (dom.sensitiveMaskGrid) {
+      dom.sensitiveMaskGrid.innerHTML = (config.sensitiveMaskRules || [])
+        .map(
+          (rule) => `
+            <article class="mask-rule-card">
+              <strong>${escapeHtml(rule.target)}</strong>
+              <span>${escapeHtml(rule.method)}</span>
+              <code>${escapeHtml(rule.demo)}</code>
+            </article>
+          `,
+        )
+        .join("");
+    }
+    refreshIcons();
+  }
+
+  function renderDailyLedger() {
+    if (!dom.dailyLedgerBody) return;
+    const items = config.dailyLedgerItems || [];
+    if (dom.dailyLedgerBadge) dom.dailyLedgerBadge.textContent = `${items.length} 条关键行为样例`;
+    if (dom.dailyLedgerSummary) {
+      dom.dailyLedgerSummary.innerHTML = (config.dailyLedgerSummary || [])
+        .map(
+          (item) => `
+            <article class="ledger-summary-card">
+              <span>${escapeHtml(item.label)}</span>
+              <strong>${escapeHtml(item.value)}</strong>
+              <small>${escapeHtml(item.note)}</small>
+            </article>
+          `,
+        )
+        .join("");
+    }
+    dom.dailyLedgerBody.innerHTML = items
+      .map(
+        (item) => `
+          <tr>
+            <td>${escapeHtml(item.time)}</td>
+            <td>
+              <strong>${escapeHtml(item.actor)}</strong>
+              <small>${escapeHtml(item.account)}</small>
+            </td>
+            <td>${escapeHtml(item.face)}</td>
+            <td>
+              <strong>${escapeHtml(item.device)}</strong>
+              <small>${escapeHtml(item.ip)} · ${escapeHtml(item.mac)}</small>
+            </td>
+            <td><span class="ledger-action">${escapeHtml(item.action)}</span></td>
+            <td>
+              <strong>${escapeHtml(item.target)}</strong>
+              <small>${escapeHtml(item.url)}</small>
+            </td>
+            <td>${escapeHtml(item.approver)}</td>
+            <td><span class="ledger-result ${statusClass(item.result)}">${escapeHtml(item.result)}</span></td>
+          </tr>
+        `,
+      )
+      .join("");
   }
 
   function renderFormulaExamples() {
@@ -2909,6 +3130,13 @@
   }
 
   function bindEvents() {
+    dom.infoTickerFilters?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-ticker-filter]");
+      if (!button) return;
+      state.activeTickerCategory = button.dataset.tickerFilter || "all";
+      renderInfoTicker();
+    });
+
     dom.roleSelect?.addEventListener("change", () => {
       state.activeRole = dom.roleSelect.value;
       renderSaasConsole();

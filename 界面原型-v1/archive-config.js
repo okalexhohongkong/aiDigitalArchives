@@ -25,6 +25,9 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "资产总览", moduleId: "metrics", query: "资产总览" },
         { label: "今日新增", moduleId: "metrics", query: "今日新增" },
         { label: "高密级告警", moduleId: "archiveResults", query: "L4 L5 L6" },
+        { label: "存储端点", moduleId: "storageStatus", query: "硬盘 云端 NAS 邮箱 状态" },
+        { label: "下载外发", moduleId: "downloadGovernance", query: "下载 邮箱 水印 审批" },
+        { label: "今日台账", moduleId: "dailyLedger", query: "日报 台账 审计" },
         { label: "AI 待处理", moduleId: "finishPipeline", query: "待收尾 AI" },
         { label: "备份健康", moduleId: "finishPipeline", query: "备份快照" },
         { label: "部门排行", moduleId: "saas", query: "部门" },
@@ -81,6 +84,7 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "相似文件", moduleId: "archiveResults", query: "相似文件" },
         { label: "历史版本", moduleId: "archiveResults", query: "历史版本" },
         { label: "关联资料", moduleId: "archiveResults", query: "关联资料" },
+        { label: "受控下载", moduleId: "downloadGovernance", query: "受控下载 水印 敏感数字" },
       ],
     },
     {
@@ -129,7 +133,9 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "企业微信离职数据", moduleId: "intake", query: "企业微信 离职 数据" },
         { label: "云盘入库", moduleId: "intake", query: "云盘" },
         { label: "NAS 总库", moduleId: "intake", query: "NAS" },
+        { label: "端点状态", moduleId: "storageStatus", query: "端点 状态 同步 在线 离线" },
         { label: "导入动作审批", moduleId: "intake", query: "复制 删除 镜像 最高授权" },
+        { label: "下载外发审批", moduleId: "downloadGovernance", query: "下载 外发 公司邮箱 水印" },
         { label: "杀毒隔离", moduleId: "validation", query: "杀毒 隔离 病毒" },
         { label: "扫描批次", moduleId: "batchHistory", query: "批次" },
         { label: "样本验证", moduleId: "validation", query: "样本验证" },
@@ -171,8 +177,10 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "复制审批", moduleId: "archiveResults", query: "复制审批" },
         { label: "打开申请", moduleId: "archiveResults", query: "打开申请" },
         { label: "禁训区", moduleId: "saas", query: "禁训区" },
-        { label: "审计日志", moduleId: "saas", query: "审计日志" },
-        { label: "水印策略", moduleId: "saas", query: "水印策略" },
+        { label: "审计日志", moduleId: "dailyLedger", query: "审计日志 每日台账" },
+        { label: "水印策略", moduleId: "downloadGovernance", query: "水印策略" },
+        { label: "敏感数字遮盖", moduleId: "downloadGovernance", query: "敏感数字 遮盖 打格子" },
+        { label: "下载日报", moduleId: "dailyLedger", query: "下载 日报 台账" },
       ],
     },
     {
@@ -185,6 +193,7 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "飞书/钉钉", moduleId: "saas", query: "飞书 钉钉" },
         { label: "电子签", moduleId: "saas", query: "电子签" },
         { label: "对象存储", moduleId: "saas", query: "对象存储" },
+        { label: "云端状态", moduleId: "storageStatus", query: "云端 状态 连接" },
         { label: "Webhook", moduleId: "saas", query: "Webhook" },
         { label: "API 密钥", moduleId: "saas", query: "API 密钥" },
         { label: "Open cloud agent", moduleId: "agentHub", query: "Open cloud agent" },
@@ -219,6 +228,7 @@ window.HWS_ARCHIVE_CONFIG = {
         { label: "差异对账", moduleId: "validation", query: "差异对账" },
         { label: "恢复演练", moduleId: "resilience", query: "恢复演练" },
         { label: "健康检查", moduleId: "metrics", query: "健康检查" },
+        { label: "存储健康", moduleId: "storageStatus", query: "存储 健康 容量 同步" },
         { label: "合并索引", moduleId: "batchHistory", query: "合并索引" },
       ],
     },
@@ -234,8 +244,11 @@ window.HWS_ARCHIVE_CONFIG = {
     { id: "fileTypes", title: "电子文件类型库", desc: "照片、声音、视频、邮件、Office、PDF、工程、数据库和备份格式。", defaultSize: "wide" },
     { id: "formulas", title: "Demo 公式样例", desc: "完整度、密级、同步健康和 AI 候选分公式。", defaultSize: "normal" },
     { id: "intake", title: "全介质采集入口", desc: "手机、iPad、旧电脑、邮箱、云盘、NAS、U盘和素材卡。", defaultSize: "large" },
+    { id: "storageStatus", title: "存储端点状态看板", desc: "本机、NAS、云端、邮箱、手机、iPad、U盘、SD卡和旧电脑状态。", defaultSize: "wide" },
     { id: "batchHistory", title: "扫描批次历史", desc: "按批次追踪来源、数量、密级、风险和合并索引。", defaultSize: "normal" },
     { id: "validation", title: "真实介质样本验证", desc: "小样本登记、只读试扫、风险复核和扩大接入决策。", defaultSize: "normal" },
+    { id: "downloadGovernance", title: "受控下载与外发治理", desc: "本地下载、公司邮箱外发、水印、敏感数字遮盖、多人审批和留痕。", defaultSize: "wide" },
+    { id: "dailyLedger", title: "每日台账与行为日报", desc: "查询、申请、审批、下载、访问、修改和 AI 优化全量留痕。", defaultSize: "wide" },
     { id: "archiveResults", title: "档案检索结果与媒体预览", desc: "列表、时间轴、关系图、媒体预览、摘要和复制审批。", defaultSize: "wide" },
     { id: "finishPipeline", title: "AI 收尾池与数据流水线", desc: "待收尾作品、评分中心、自动索引 SOP 和备份快照。", defaultSize: "wide" },
     { id: "resilience", title: "备份容灾总控", desc: "所有系统的快照、异地、隔离、恢复演练和健康检查。", defaultSize: "wide" },
@@ -243,20 +256,20 @@ window.HWS_ARCHIVE_CONFIG = {
   ],
 
   menuModuleMap: {
-    dashboard: ["command", "libraryBoard", "contentDirectory", "metrics", "layoutWorkbench", "saas", "archiveResults", "finishPipeline"],
+    dashboard: ["command", "libraryBoard", "contentDirectory", "metrics", "storageStatus", "downloadGovernance", "dailyLedger", "layoutWorkbench", "saas", "archiveResults", "finishPipeline"],
     catalog: ["libraryBoard", "contentDirectory", "command", "archiveResults", "fileTypes"],
     layout: ["layoutWorkbench", "command", "saas"],
     tenant: ["saas", "command", "archiveResults"],
-    search: ["command", "libraryBoard", "contentDirectory", "archiveResults", "fileTypes"],
+    search: ["command", "libraryBoard", "contentDirectory", "archiveResults", "downloadGovernance", "fileTypes"],
     keyword: ["command", "archiveResults", "saas"],
     workType: ["fileTypes", "command", "archiveResults"],
-    inbox: ["intake", "batchHistory", "validation", "archiveResults"],
+    inbox: ["intake", "storageStatus", "batchHistory", "validation", "downloadGovernance", "archiveResults"],
     media: ["archiveResults", "fileTypes", "formulas"],
     finish: ["finishPipeline", "formulas", "validation", "archiveResults"],
-    permission: ["saas", "archiveResults", "validation"],
-    integration: ["saas", "agentHub", "finishPipeline", "batchHistory"],
+    permission: ["saas", "downloadGovernance", "dailyLedger", "archiveResults", "validation"],
+    integration: ["saas", "agentHub", "storageStatus", "finishPipeline", "batchHistory"],
     agent: ["agentHub", "saas", "resilience", "batchHistory"],
-    backup: ["resilience", "finishPipeline", "batchHistory", "validation", "metrics"],
+    backup: ["resilience", "storageStatus", "finishPipeline", "batchHistory", "validation", "metrics"],
   },
 
   metrics: [
@@ -264,6 +277,26 @@ window.HWS_ARCHIVE_CONFIG = {
     { label: "全文索引", value: "68%", note: "OCR 队列 12,304" },
     { label: "待收尾作品", value: "416", note: "S 级 38，A 级 122" },
     { label: "备份健康", value: "97%", note: "最近快照 05:30" },
+  ],
+
+  infoTickerCategories: [
+    { key: "all", label: "全部" },
+    { key: "platform", label: "平台动态" },
+    { key: "industry", label: "行业资讯" },
+    { key: "enterprise", label: "企业资讯" },
+    { key: "job", label: "岗位资讯" },
+    { key: "policy", label: "制度资讯" },
+  ],
+
+  infoTickerItems: [
+    { category: "platform", source: "动态平台", time: "今日 09:00", title: "新增云盘、NAS、邮箱、手机和 U 盘多源接入入口，待授权后进入只读采集流程。" },
+    { category: "industry", source: "行业资讯", time: "今日 10:20", title: "数字档案系统建设重点转向 AI 检索、自动摘要、权限留痕和长期备份恢复能力。" },
+    { category: "enterprise", source: "企业资讯", time: "今日 11:10", title: "黑卫士四大系统演示入口已整理到桌面统一文件夹，明早可直接打开查看。" },
+    { category: "job", source: "岗位资讯", time: "今日 13:30", title: "资料管理员、法务、财务、人事、项目经理和部门负责人将按密级获得不同查看权限。" },
+    { category: "policy", source: "制度资讯", time: "今日 15:00", title: "L5/L6 数据导出、镜像回写、完整克隆和容灾热备必须走最高权限多人审批。" },
+    { category: "platform", source: "平台动态", time: "今日 16:15", title: "档案卡已加入标题、副标题、简介、作者、创作工具、时间、体量、节点、用途和 AI 评分。" },
+    { category: "industry", source: "行业资讯", time: "今日 17:40", title: "企业知识库正从文件夹管理升级为内容画像、语义检索、版本证据链和智能体协作。" },
+    { category: "enterprise", source: "公司内部", time: "今日 18:05", title: "内部制度、经典案例、示范文档和高价值半成品将优先进入 AI 补全评分池。" },
   ],
 
   contentDirectory: [
@@ -321,6 +354,57 @@ window.HWS_ARCHIVE_CONFIG = {
     { name: "管理员端", scope: "索引、批次、权限、备份、Agent 接入", permission: "系统管理员；高危动作需最高授权" },
     { name: "操作终端机", scope: "只读扫描、查毒、入库、点验登记", permission: "操作员；不能删除云端和回写镜像" },
     { name: "iPad 最高权限端", scope: "审批、暂停、授权、容灾确认", permission: "最高授权人；支持三人会签" },
+  ],
+
+  storageEndpoints: [
+    { name: "NAS 主库", type: "NAS", icon: "server", capacity: "120T", used: "62.4T", health: "98.2%", status: "在线", sync: "主库实时写入", risk: "低", next: "继续快照与哈希抽检" },
+    { name: "本机工作盘", type: "本地硬盘", icon: "hard-drive", capacity: "4T", used: "2.1T", health: "96.8%", status: "在线", sync: "只读索引已启用", risk: "低", next: "保留脱敏索引，不暴露完整路径" },
+    { name: "公司移动硬盘 A", type: "外接硬盘", icon: "hard-drive", capacity: "8T", used: "6.7T", health: "91.4%", status: "待复核", sync: "清单已生成", risk: "中", next: "先查毒，再决定是否复制到 NAS 暂存区" },
+    { name: "iCloud 企业资料", type: "云端云盘", icon: "cloud", capacity: "2T", used: "1.3T", health: "88.6%", status: "待授权", sync: "只拉清单，不下载正文", risk: "中高", next: "配置账号授权和下载边界" },
+    { name: "企业邮箱归档", type: "邮箱库", icon: "mail", capacity: "860G", used: "412G", health: "84.0%", status: "待授权", sync: "邮件与附件分开归集", risk: "高", next: "先导出清单，合同/人事/财务默认隔离" },
+    { name: "离职员工手机样本", type: "手机", icon: "smartphone", capacity: "512G", used: "381G", health: "79.5%", status: "待点验", sync: "照片/视频/聊天导出待授权", risk: "高", next: "确认机主、时间段、隐私排除和人脸识别授权" },
+    { name: "iPad 会议资料", type: "iPad", icon: "tablet", capacity: "256G", used: "142G", health: "93.1%", status: "在线", sync: "会议文件进入平板暂存区", risk: "中", next: "优先 OCR 手写批注和会议附件" },
+    { name: "U盘临时交接", type: "U盘", icon: "usb", capacity: "128G", used: "96G", health: "75.2%", status: "隔离检查", sync: "禁止直接入正式库", risk: "高", next: "查毒、重复检查、来源登记后再申请入库" },
+  ],
+
+  downloadDestinations: [
+    { name: "下载到本地电脑", icon: "hard-drive", scope: "仅允许进入受控下载目录，文件名带申请编号和水印编号", approval: "所有下载至少 3 人审批", watermark: "默认添加姓名、账号、时间、IP、MAC、文件编号水印", status: "可申请" },
+    { name: "发送到公司指定工作邮箱", icon: "mail", scope: "只允许发送到公司备案邮箱，不允许私人邮箱", approval: "外发视同下载，至少 3 人审批", watermark: "正文和附件都加外发水印，邮件台账必须记录收件地址", status: "可申请" },
+    { name: "最高权限资料下载", icon: "shield-check", scope: "L5/L6、容灾包、克隆机、完整数据库和组织架构备份", approval: "至少 2 名最高授权人共同审批", watermark: "强水印、隐藏指纹、敏感数字遮盖，必要时只给脱敏副本", status: "最高权限" },
+    { name: "管理权限资料下载", icon: "git-branch", scope: "部门级批量资料、审批链、管理报表和跨部门材料", approval: "至少 3 名管理权限审批人共同审批", watermark: "管理水印、访问目的、审批链编号和有效期", status: "管理审批" },
+  ],
+
+  downloadProtectionRules: [
+    { level: "L0 外部流通", watermark: "轻水印", masking: "不默认遮盖", approval: "按公开资料流程，可记录台账", note: "仍记录下载人和用途" },
+    { level: "L1 普通", watermark: "标准水印", masking: "合同编号和手机号可选遮盖", approval: "按部门规则审批", note: "可下载到本地受控目录" },
+    { level: "L2 内部", watermark: "标准水印 + 账号指纹", masking: "客户电话、邮箱、身份证局部遮盖", approval: "至少 3 人审批", note: "禁止私人邮箱外发" },
+    { level: "L3 敏感", watermark: "受控水印", masking: "金额、证件号、银行卡、手机号打格子", approval: "至少 3 人审批", note: "外发必须走公司邮箱" },
+    { level: "L4 机密", watermark: "强水印 + 隐藏指纹", masking: "敏感数字默认打格子，只展示必要字段", approval: "至少 3 人审批并法务留痕", note: "优先给脱敏副本" },
+    { level: "L5 最高授权", watermark: "最高权限强水印", masking: "敏感数字、客户身份、金额和账号默认遮盖", approval: "至少 2 名最高授权人审批", note: "默认不可批量下载" },
+    { level: "L6 绝密", watermark: "绝密水印 + 逐页指纹", masking: "默认只给脱敏摘要，原文不得外发", approval: "至少 2 名最高授权人审批并记录原因", note: "必要时只允许在线查看" },
+  ],
+
+  sensitiveMaskRules: [
+    { target: "手机号/邮箱/身份证", method: "局部遮盖", demo: "138****8866 / z***@company.com / 4403**********1234" },
+    { target: "银行卡/账号/税号", method: "打格子", demo: "6222 □□□□ □□□□ 7788 / 纳税号分段遮盖" },
+    { target: "金额/报价/预算", method: "按权限显示", demo: "低权限显示为 □□□,□□□ 元；审批后显示完整值" },
+    { target: "客户名称/联系人", method: "脱敏副本", demo: "客户 A / 联系人 B，仅最高授权可回看原文" },
+    { target: "下载副本指纹", method: "隐藏水印", demo: "写入申请编号、审批链编号、下载时间和设备指纹" },
+  ],
+
+  dailyLedgerSummary: [
+    { label: "今日查询", value: "286", note: "含单一检索 198、联合检索 88" },
+    { label: "下载/外发申请", value: "17", note: "本地下载 11、工作邮箱外发 6" },
+    { label: "审批动作", value: "43", note: "通过 31、退回 8、升级 4" },
+    { label: "高敏拦截", value: "9", note: "L4-L6、敏感数字未遮盖或审批不足" },
+  ],
+
+  dailyLedgerItems: [
+    { time: "09:12", actor: "孙博文", account: "sunbowen@company.com", face: "人脸通过", device: "MacBook-Pro-17", mac: "8C:85:90:2A:xx:41", ip: "192.168.1.42", action: "联合检索", target: "2024 发布会 + 广告公司 + 视频", url: "内网检索入口", approver: "无需审批", result: "已留痕" },
+    { time: "10:06", actor: "陈项目", account: "pm.chen@company.com", face: "人脸通过", device: "iPad 最高权限端", mac: "A4:5E:60:11:xx:09", ip: "192.168.1.88", action: "申请下载", target: "体育赛事投标文件 L3", url: "本地受控下载目录", approver: "部门负责人/法务/系统管理员", result: "审批中" },
+    { time: "11:28", actor: "法务审计", account: "audit@company.com", face: "人脸复核", device: "管理员端", mac: "F0:18:98:76:xx:13", ip: "10.0.0.25", action: "审批外发", target: "客户往来邮件附件", url: "公司指定工作邮箱", approver: "法务审计", result: "通过，强水印" },
+    { time: "13:40", actor: "资料管理员", account: "archive.ops@company.com", face: "人脸通过", device: "操作终端机", mac: "70:9C:D1:33:xx:65", ip: "192.168.1.61", action: "敏感遮盖", target: "合同金额和客户证件号", url: "脱敏副本生成区", approver: "系统规则", result: "已打格子" },
+    { time: "15:05", actor: "最高授权人 A", account: "owner.a@company.com", face: "人脸通过", device: "iPad 最高权限端", mac: "34:AB:37:56:xx:20", ip: "192.168.1.90", action: "最高权限审批", target: "L5 财务汇总表", url: "在线查看，不外发", approver: "最高授权人 A/B", result: "等待第二人" },
   ],
 
   resiliencePlans: [

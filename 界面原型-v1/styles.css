@@ -556,6 +556,127 @@ button {
   margin-bottom: 18px;
 }
 
+.info-ticker {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 42px;
+  margin-bottom: 12px;
+  padding: 6px 8px;
+  overflow: hidden;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(8, 47, 42, 0.06);
+}
+
+.ticker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 9px;
+  color: #ffffff;
+  background: var(--teal);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.ticker-label svg {
+  width: 15px;
+  height: 15px;
+}
+
+.ticker-filters {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+}
+
+.ticker-filters button {
+  min-height: 30px;
+  padding: 0 8px;
+  color: var(--muted);
+  background: #f8faf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ticker-filters button.active {
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-color: rgba(var(--teal-rgb), 0.28);
+}
+
+.ticker-viewport {
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 18px;
+  width: max-content;
+  animation: ticker-scroll 42s linear infinite;
+}
+
+.info-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.ticker-item b,
+.ticker-item em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.ticker-item b {
+  color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.ticker-item em {
+  color: var(--muted);
+  background: #eef2f1;
+}
+
+.ticker-item strong {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--teal);
@@ -1518,7 +1639,12 @@ h2 {
 .import-action-policy-grid,
 .terminal-port-grid,
 .agent-connector-grid,
-.resilience-plan-grid {
+.resilience-plan-grid,
+.storage-status-grid,
+.download-destination-grid,
+.download-protection-grid,
+.sensitive-mask-grid,
+.daily-ledger-summary {
   display: grid;
   gap: 10px;
 }
@@ -1531,10 +1657,250 @@ h2 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.storage-status-grid,
+.download-destination-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 18px;
+}
+
+.download-protection-grid {
+  grid-template-columns: repeat(7, minmax(128px, 1fr));
+}
+
+.sensitive-mask-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.daily-ledger-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 18px 18px 0;
+}
+
 .policy-card,
-.terminal-card {
+.terminal-card,
+.storage-status-card,
+.download-destination-card,
+.download-protection-card,
+.mask-rule-card,
+.ledger-summary-card {
   display: grid;
   gap: 8px;
+}
+
+.storage-status-card,
+.download-destination-card,
+.download-protection-card,
+.mask-rule-card,
+.ledger-summary-card {
+  min-width: 0;
+  padding: 13px;
+  background: #fbfcf9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.storage-status-card.ok,
+.download-destination-card.ok {
+  border-color: rgba(var(--teal-rgb), 0.26);
+}
+
+.storage-status-card.warning,
+.download-destination-card.warning {
+  background: #fffbeb;
+  border-color: #f4d7a7;
+}
+
+.storage-status-card.danger,
+.download-destination-card.danger {
+  background: var(--red-soft);
+  border-color: #fecaca;
+}
+
+.storage-card-head,
+.download-card-head {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+}
+
+.download-card-head {
+  grid-template-columns: 38px minmax(0, 1fr);
+}
+
+.storage-card-head > span,
+.download-card-head > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-radius: 8px;
+}
+
+.storage-card-head h3,
+.download-destination-card h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.storage-card-head em,
+.download-card-head em,
+.storage-status-foot span,
+.download-rule-list span,
+.download-protection-card em,
+.ledger-result,
+.ledger-action {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.storage-status-card.warning .storage-card-head em,
+.download-destination-card.warning .download-card-head em,
+.ledger-result.warning {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.storage-status-card.danger .storage-card-head em,
+.download-destination-card.danger .download-card-head em,
+.ledger-result.danger {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.storage-meter-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.storage-meter-row div {
+  display: grid;
+  gap: 5px;
+}
+
+.storage-meter-row span,
+.storage-status-card p,
+.download-destination-card p,
+.download-protection-card span,
+.download-protection-card i,
+.mask-rule-card span,
+.ledger-summary-card span,
+.ledger-summary-card small,
+.ledger-table small {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.storage-meter-row strong,
+.ledger-summary-card strong {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.storage-meter-row i {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+.storage-meter-row b {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), #36b37e);
+  border-radius: inherit;
+}
+
+.storage-status-foot,
+.download-rule-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.download-policy-wrap {
+  display: grid;
+  gap: 12px;
+  margin: 0 18px 18px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.download-protection-card strong,
+.mask-rule-card strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.download-protection-card i {
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.mask-rule-card code {
+  display: block;
+  min-height: 38px;
+  padding: 8px;
+  color: #0f172a;
+  white-space: normal;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.ledger-table-wrap {
+  margin: 18px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.ledger-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.ledger-table th,
+.ledger-table td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.ledger-table th {
+  color: var(--muted);
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ledger-table td strong,
+.ledger-table td small {
+  display: block;
+}
+
+.ledger-table td {
+  font-size: 13px;
 }
 
 .policy-card strong,
@@ -3442,6 +3808,11 @@ h2 {
   .content-directory-grid,
   .agent-connector-grid,
   .resilience-plan-grid,
+  .storage-status-grid,
+  .download-destination-grid,
+  .download-protection-grid,
+  .sensitive-mask-grid,
+  .daily-ledger-summary,
   .import-action-policy-grid,
   .terminal-port-grid,
   .route-menu-bins,
@@ -3550,6 +3921,15 @@ h2 {
     padding: 16px;
   }
 
+  .info-ticker {
+    grid-template-columns: 1fr;
+  }
+
+  .ticker-filters {
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3572,6 +3952,11 @@ h2 {
   .content-directory-grid,
   .agent-connector-grid,
   .resilience-plan-grid,
+  .storage-status-grid,
+  .download-destination-grid,
+  .download-protection-grid,
+  .sensitive-mask-grid,
+  .daily-ledger-summary,
   .import-action-policy-grid,
   .terminal-port-grid,
   .route-menu-bins,
@@ -3702,6 +4087,11 @@ h2 {
   .content-directory-grid,
   .agent-connector-grid,
   .resilience-plan-grid,
+  .storage-status-grid,
+  .download-destination-grid,
+  .download-protection-grid,
+  .sensitive-mask-grid,
+  .daily-ledger-summary,
   .import-action-policy-grid,
   .terminal-port-grid,
   .route-menu-bins,
