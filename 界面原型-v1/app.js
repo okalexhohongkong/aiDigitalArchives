@@ -22,6 +22,8 @@
     moduleLayouts: "hws-archive-module-layouts-v1",
     menuLayout: "hws-archive-menu-layout-v1",
     customSuggestions: "hws-archive-custom-suggestions-v1",
+    archiveQuickCustom: "hws-archive-quick-custom-v1",
+    archiveQuickHidden: "hws-archive-quick-hidden-v1",
     previewDock: "hws-archive-preview-dock-v1",
   };
   const menuPositionOptions = ["left", "top", "right", "bottom"];
@@ -152,6 +154,8 @@
   }
 
   const savedCustomSuggestions = readJson(layoutStorageKeys.customSuggestions, []);
+  const savedArchiveQuickCustom = readJson(layoutStorageKeys.archiveQuickCustom, []);
+  const savedArchiveQuickHidden = readJson(layoutStorageKeys.archiveQuickHidden, []);
   const savedPreviewDock = readJson(layoutStorageKeys.previewDock, {});
 
   const state = {
@@ -167,6 +171,9 @@
     menuModuleMap: loadMenuModuleMap(),
     moduleLayouts: loadModuleLayouts(),
     menuLayout: loadMenuLayout(),
+    customArchiveQuickCategories: Array.isArray(savedArchiveQuickCustom) ? savedArchiveQuickCustom : [],
+    hiddenArchiveQuickCategories: Array.isArray(savedArchiveQuickHidden) ? savedArchiveQuickHidden : [],
+    showHiddenArchiveQuickCategories: false,
     previewDock: {
       ratio: ["quarter", "half", "threeQuarter", "full"].includes(savedPreviewDock?.ratio) ? savedPreviewDock.ratio : "half",
       locked: Boolean(savedPreviewDock?.locked),
@@ -235,6 +242,13 @@
     timeCapsuleEventBody: document.querySelector("#timeCapsuleEventBody"),
     libraryBoardCount: document.querySelector("#libraryBoardCount"),
     libraryBoardGrid: document.querySelector("#libraryBoardGrid"),
+    archiveQuickCategoryGrid: document.querySelector("#archiveQuickCategoryGrid"),
+    archiveQuickNameInput: document.querySelector("#archiveQuickNameInput"),
+    archiveQuickQueryInput: document.querySelector("#archiveQuickQueryInput"),
+    archiveQuickPermissionSelect: document.querySelector("#archiveQuickPermissionSelect"),
+    archiveQuickAddButton: document.querySelector("#archiveQuickAddButton"),
+    archiveQuickShowHidden: document.querySelector("#archiveQuickShowHidden"),
+    archiveQuickStatus: document.querySelector("#archiveQuickStatus"),
     orgChartStatus: document.querySelector("#orgChartStatus"),
     orgChartSearchInput: document.querySelector("#orgChartSearchInput"),
     companyOrgGrid: document.querySelector("#companyOrgGrid"),
@@ -318,6 +332,20 @@
           .filter(Boolean),
       ),
     );
+  }
+
+  function roleRank(roleKey) {
+    return {
+      staff: 1,
+      auditor: 2,
+      manager: 2,
+      admin: 3,
+      owner: 4,
+    }[roleKey] || 1;
+  }
+
+  function roleName(roleKey) {
+    return (config.roles || []).find((role) => role.key === roleKey)?.name || "成员";
   }
 
   function suggestionPoolForInput(input) {
@@ -1760,6 +1788,162 @@
         `,
       )
       .join("");
+    renderArchiveQuickCategories();
+  }
+
+  function archiveQuickCategories() {
+    const defaults = (config.archiveQuickCategories || []).map((item) => ({ ...item, custom: false }));
+    const custom = (state.customArchiveQuickCategories || []).map((item) => ({ ...item, custom: true }));
+    return [...defaults, ...custom].map((item, index) => ({
+      key: item.key || `archiveQuick-${index}`,
+      label: item.label || item.query || `自定义分类 ${index + 1}`,
+      query: item.query || item.label || "",
+      keywords: item.keywords || item.query || item.label || "",
+      desc: item.desc || "自定义快捷分类，按输入关键词检索。",
+      permission: item.permission || roleName(item.requiredRole || "staff"),
+      requiredRole: item.requiredRole || "staff",
+      custom: Boolean(item.custom),
+    }));
+  }
+
+  function archiveQuickCount(category) {
+    const keywords = normalizeQuery(category.keywords)
+      .split(/\s+/)
+      .filter((item) => item.length >= 2);
+    if (!keywords.length) return 0;
+    return archives.filter((item) => {
+      const haystack = archiveText(item);
+      return keywords.some((keyword) => haystack.includes(keyword));
+    }).length;
+  }
+
+  function canOpenArchiveQuick(category) {
+    return roleRank(state.activeRole) >= roleRank(category.requiredRole);
+  }
+
+  function saveArchiveQuickState() {
+    writeJson(layoutStorageKeys.archiveQuickCustom, state.customArchiveQuickCategories);
+    writeJson(layoutStorageKeys.archiveQuickHidden, state.hiddenArchiveQuickCategories);
+  }
+
+  function setArchiveQuickStatus(text) {
+    if (dom.archiveQuickStatus) dom.archiveQuickStatus.textContent = text;
+  }
+
+  function renderArchiveQuickCategories() {
+    if (!dom.archiveQuickCategoryGrid) return;
+    const allCategories = archiveQuickCategories();
+    const hiddenSet = new Set(state.hiddenArchiveQuickCategories);
+    const categories = allCategories.filter((item) => state.showHiddenArchiveQuickCategories || !hiddenSet.has(item.key));
+    const hiddenCount = allCategories.length - categories.length;
+    if (dom.archiveQuickShowHidden) dom.archiveQuickShowHidden.checked = state.showHiddenArchiveQuickCategories;
+    if (dom.archiveQuickStatus && !dom.archiveQuickStatus.textContent) {
+      setArchiveQuickStatus("默认分类已载入，可按角色授权打开。");
+    }
+    dom.archiveQuickCategoryGrid.innerHTML = categories.length
+      ? categories
+          .map((category) => {
+            const hidden = hiddenSet.has(category.key);
+            const allowed = canOpenArchiveQuick(category);
+            const count = archiveQuickCount(category);
+            return `
+              <article class="archive-quick-card ${hidden ? "is-hidden" : ""} ${allowed ? "is-authorized" : "is-locked"}">
+                <button class="archive-quick-open" type="button" data-archive-quick-action="open" data-archive-quick-key="${escapeHtml(category.key)}">
+                  <span>${escapeHtml(category.label)}</span>
+                  <strong>${escapeHtml(count)}</strong>
+                </button>
+                <p>${escapeHtml(category.desc)}</p>
+                <div class="archive-quick-meta">
+                  <em>${escapeHtml(category.permission)}</em>
+                  <em>${category.custom ? "自定义" : "默认"}</em>
+                  <em>${allowed ? "已授权打开" : "需授权打开"}</em>
+                </div>
+                <div class="archive-quick-actions">
+                  <button type="button" data-archive-quick-action="open" data-archive-quick-key="${escapeHtml(category.key)}">
+                    ${allowed ? "打开分类" : "申请授权"}
+                  </button>
+                  <button type="button" data-archive-quick-action="${hidden ? "restore" : "hide"}" data-archive-quick-key="${escapeHtml(category.key)}">
+                    ${hidden ? "恢复显示" : "隐藏"}
+                  </button>
+                  ${
+                    category.custom
+                      ? `<button type="button" data-archive-quick-action="delete" data-archive-quick-key="${escapeHtml(category.key)}">删除自定义</button>`
+                      : ""
+                  }
+                </div>
+              </article>
+            `;
+          })
+          .join("")
+      : `<div class="empty-state">当前没有可显示的快捷分类，打开“显示隐藏按钮”或新增自定义按钮。</div>`;
+    if (hiddenCount > 0 && !state.showHiddenArchiveQuickCategories) {
+      setArchiveQuickStatus(`已隐藏 ${hiddenCount} 个快捷按钮；勾选“显示隐藏按钮”可恢复。`);
+    }
+    refreshIcons();
+  }
+
+  function addArchiveQuickCategory() {
+    const label = dom.archiveQuickNameInput?.value.trim() || "";
+    const query = dom.archiveQuickQueryInput?.value.trim() || label;
+    if (!label || !query) {
+      setArchiveQuickStatus("请先填写按钮名称和检索词。");
+      return;
+    }
+    const requiredRole = dom.archiveQuickPermissionSelect?.value || "staff";
+    const category = {
+      key: `customArchiveQuick-${Date.now()}`,
+      label,
+      query,
+      keywords: query,
+      desc: "自定义快捷分类，可隐藏、可按角色授权打开。",
+      permission: roleName(requiredRole),
+      requiredRole,
+    };
+    state.customArchiveQuickCategories = [...state.customArchiveQuickCategories, category].slice(-24);
+    saveArchiveQuickState();
+    if (dom.archiveQuickNameInput) dom.archiveQuickNameInput.value = "";
+    if (dom.archiveQuickQueryInput) dom.archiveQuickQueryInput.value = "";
+    setArchiveQuickStatus(`已新增快捷按钮：${label}`);
+    renderArchiveQuickCategories();
+  }
+
+  function handleArchiveQuickAction(action, key) {
+    const category = archiveQuickCategories().find((item) => item.key === key);
+    if (!category) return;
+    const hiddenSet = new Set(state.hiddenArchiveQuickCategories);
+    if (action === "hide") {
+      hiddenSet.add(key);
+      state.hiddenArchiveQuickCategories = Array.from(hiddenSet);
+      saveArchiveQuickState();
+      setArchiveQuickStatus(`已隐藏快捷按钮：${category.label}`);
+      renderArchiveQuickCategories();
+      return;
+    }
+    if (action === "restore") {
+      hiddenSet.delete(key);
+      state.hiddenArchiveQuickCategories = Array.from(hiddenSet);
+      saveArchiveQuickState();
+      setArchiveQuickStatus(`已恢复快捷按钮：${category.label}`);
+      renderArchiveQuickCategories();
+      return;
+    }
+    if (action === "delete" && category.custom) {
+      state.customArchiveQuickCategories = state.customArchiveQuickCategories.filter((item) => item.key !== key);
+      hiddenSet.delete(key);
+      state.hiddenArchiveQuickCategories = Array.from(hiddenSet);
+      saveArchiveQuickState();
+      setArchiveQuickStatus(`已删除自定义快捷按钮：${category.label}`);
+      renderArchiveQuickCategories();
+      return;
+    }
+    if (!canOpenArchiveQuick(category)) {
+      setArchiveQuickStatus(`${category.label} 需要 ${category.permission}；当前角色为 ${roleName(state.activeRole)}，已进入授权申请状态。`);
+      return;
+    }
+    dom.searchInput.value = category.query;
+    renderResults();
+    scrollToModule("archiveResults");
+    setArchiveQuickStatus(`已打开分类：${category.label}，检索词：${category.query}`);
   }
 
   function orgDocumentStats(node) {
@@ -3892,6 +4076,7 @@
     dom.roleSelect?.addEventListener("change", () => {
       state.activeRole = dom.roleSelect.value;
       renderSaasConsole();
+      renderArchiveQuickCategories();
       renderResults();
     });
 
@@ -3931,6 +4116,19 @@
       dom.searchInput.value = button.dataset.libraryQuery || "";
       renderResults();
       scrollToModule("archiveResults");
+    });
+
+    dom.archiveQuickAddButton?.addEventListener("click", addArchiveQuickCategory);
+
+    dom.archiveQuickShowHidden?.addEventListener("change", () => {
+      state.showHiddenArchiveQuickCategories = Boolean(dom.archiveQuickShowHidden.checked);
+      renderArchiveQuickCategories();
+    });
+
+    dom.archiveQuickCategoryGrid?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-archive-quick-action]");
+      if (!button) return;
+      handleArchiveQuickAction(button.dataset.archiveQuickAction, button.dataset.archiveQuickKey);
     });
 
     dom.contentDirectoryGrid?.addEventListener("click", (event) => {

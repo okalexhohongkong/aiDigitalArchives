@@ -1660,6 +1660,190 @@ h2 {
   font-weight: 800;
 }
 
+.archive-quick-panel {
+  margin: 0 18px 18px;
+  padding: 12px;
+  background: #f6faf7;
+  border: 1px solid rgba(var(--teal-rgb), 0.16);
+  border-radius: 8px;
+}
+
+.archive-hidden-toggle {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 28px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.archive-hidden-toggle input {
+  accent-color: var(--teal);
+}
+
+.archive-quick-editor {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.9fr) minmax(220px, 1.2fr) minmax(130px, 0.5fr) auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.archive-quick-editor input,
+.archive-quick-editor select {
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: 0;
+}
+
+.archive-quick-editor input:focus,
+.archive-quick-editor select:focus {
+  border-color: rgba(var(--teal-rgb), 0.5);
+  box-shadow: 0 0 0 3px rgba(var(--teal-rgb), 0.1);
+}
+
+.archive-quick-status {
+  min-height: 24px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.archive-quick-category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.archive-quick-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.archive-quick-card.is-locked {
+  border-color: rgba(var(--amber-rgb), 0.34);
+  background: #fffaf0;
+}
+
+.archive-quick-card.is-hidden {
+  opacity: 0.58;
+}
+
+.archive-quick-open {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  padding: 0;
+  color: var(--ink);
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.archive-quick-open span {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-quick-open strong {
+  display: inline-flex;
+  min-width: 34px;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  background: var(--teal-soft);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.archive-quick-card.is-locked .archive-quick-open strong {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.archive-quick-card p {
+  display: -webkit-box;
+  min-height: 34px;
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.archive-quick-meta,
+.archive-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.archive-quick-meta em {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 7px;
+  color: var(--muted);
+  background: #eef1ec;
+  border-radius: 999px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.archive-quick-card.is-authorized .archive-quick-meta em:last-child {
+  color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.archive-quick-card.is-locked .archive-quick-meta em:last-child {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.archive-quick-actions button {
+  flex: 1 1 88px;
+  min-height: 30px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.archive-quick-actions button:first-child {
+  color: #ffffff;
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.archive-quick-card.is-locked .archive-quick-actions button:first-child {
+  color: var(--amber);
+  background: var(--amber-soft);
+  border-color: rgba(var(--amber-rgb), 0.28);
+}
+
 .content-directory-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4731,6 +4915,7 @@ h2 {
 
   .secondary-menu-grid,
   .library-board-grid,
+  .archive-quick-category-grid,
   .archive-command-flow,
   .archive-command-grid,
   .search-mode-grid,
@@ -5028,6 +5213,16 @@ h2 {
   .select-field,
   .range-field {
     width: 100%;
+  }
+
+  .archive-quick-panel {
+    margin-right: 12px;
+    margin-left: 12px;
+  }
+
+  .archive-quick-editor,
+  .archive-quick-category-grid {
+    grid-template-columns: 1fr;
   }
 
   .company-org-panel .panel-heading,

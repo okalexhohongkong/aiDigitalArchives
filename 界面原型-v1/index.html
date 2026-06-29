@@ -298,6 +298,31 @@
             <span id="libraryBoardCount" class="nas-target">等待统计</span>
           </div>
           <div id="libraryBoardGrid" class="library-board-grid"></div>
+          <div class="archive-quick-panel" aria-label="数据库快捷分类按钮">
+            <div class="section-mini-head">
+              <div>
+                <p class="eyebrow">数据库快捷分类</p>
+                <h3>老板个人、家庭、公司、在职、离职、作品、经典作品、合同案例快速进入</h3>
+              </div>
+              <label class="archive-hidden-toggle">
+                <input id="archiveQuickShowHidden" type="checkbox" />
+                <span>显示隐藏按钮</span>
+              </label>
+            </div>
+            <div class="archive-quick-editor">
+              <input id="archiveQuickNameInput" type="text" placeholder="新增按钮名称，如：重大合同" />
+              <input id="archiveQuickQueryInput" type="text" placeholder="检索词，如：合同 协议 法务" />
+              <select id="archiveQuickPermissionSelect" aria-label="快捷按钮权限">
+                <option value="staff">成员可打开</option>
+                <option value="manager">部门负责人</option>
+                <option value="admin">系统管理员</option>
+                <option value="owner">最高授权人</option>
+              </select>
+              <button id="archiveQuickAddButton" class="primary-action" type="button">新增按钮</button>
+            </div>
+            <div id="archiveQuickStatus" class="archive-quick-status">默认分类已载入，可按角色授权打开。</div>
+            <div id="archiveQuickCategoryGrid" class="archive-quick-category-grid"></div>
+          </div>
         </section>
 
         <section class="workspace-panel directory-panel managed-module" data-module-id="contentDirectory" data-module-title="内容检索总目录" aria-label="内容检索总目录">
